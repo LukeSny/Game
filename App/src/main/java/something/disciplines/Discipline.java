@@ -25,7 +25,7 @@ public abstract class Discipline {
     public String name;
     //scalar damage multiplier, eg 1.0 will do 100% of character's strength + wpn damage
     public double damageMod;
-    //diagonal number of tiles something can move, 4 can move 4 diagonal tiles away
+    //number of tiles that can be moved for 1 action point
     public int moveDist;
     //diagonal number of tiles something can attack
     public int range;
@@ -37,7 +37,7 @@ public abstract class Discipline {
     public String imageURL;
     //cost this class has to do a basic attack
     public int attackActionCost;
-    //default abilities for this class
+    //abilities for this class
     public ArrayList<Ability> abilities;
 
 

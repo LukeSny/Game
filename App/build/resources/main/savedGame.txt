@@ -58,12 +58,12 @@ orc Orc 8 3  67 67 0 100 12 0 0 null null null null
 sword
 rapier
 140 7
-goblin(2) models/goblin.png 2 1 993.9084833689857 485.8439594486019
+goblin(2) models/goblin.png 2 1 1010.975839425879 473.8490248983055
 goblin Goblin 8 0  62 62 0 100 13 0 0 null null null null
 goblin Goblin 8 1  57 57 0 100 13 0 0 null null null null
 rapier
 20 2
-bandit(2) models/bandit.png 2 2 1402.8727234164237 809.5619573738318
+bandit(2) models/bandit.png 2 2 1408.379339018745 828.0109120583456
 bandit Bandit 8 0  50 50 0 100 12 0 0 null null null null
 bandit Bandit 8 1  55 55 0 100 16 0 0 null null null null
 rapier
