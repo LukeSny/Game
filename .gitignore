@@ -81,3 +81,4 @@ tmp/
 
 # Ignore Gradle build output directory
 build
+/App/src/main/resources/savedGame.txt
