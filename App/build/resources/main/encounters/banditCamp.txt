@@ -1,0 +1,33 @@
+Bandit Camp
+places/banditCamp.jpg
+*
+The Approach
+&
+places/banditCamp.jpg
++
+your party stumbles across a camp in the distance
+crawling with bandits.
+The area would certainly be better off without them.
+-
+Fight!
+Leave
+
+^
+
+#
++5
+-4 bandit
+#
+
+*
+Victory!
+&
+poop.jpg
++
+The enemies lay dead at your feet.
+Their ill-gotten gains are now yours.
+-
+Exit
+$ 20 120
+% basic grieves
+^

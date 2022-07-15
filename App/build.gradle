@@ -1,0 +1,67 @@
+// Gradle build file
+// CSCI 205 - Software Engineering and Design
+// Bucknell University
+// Author - B. King
+
+plugins{
+    id 'application'
+    id 'java'
+    id 'idea'
+    id 'org.javamodularity.moduleplugin' version '1.8.10' apply false
+    id 'org.openjfx.javafxplugin' version '0.0.10'
+}
+
+group 'org.MyWork'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+
+}
+
+run {
+    standardInput = System.in
+}
+
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed", "standard_out", "standard_error"
+    }
+}
+
+// Needs to be either 11.0.2 (LTS) or 17
+javafx {
+    version = "17.0.2"
+    modules = ['javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.media']
+}
+
+dependencies {
+    testImplementation(platform('org.junit:junit-bom:5.8.2'))
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'com.github.haifengl:smile-core:2.6.0'
+    implementation 'com.github.haifengl:smile-io:2.6.0'
+    implementation 'com.github.haifengl:smile-data:2.6.0'
+    implementation 'com.github.haifengl:smile-math:2.6.0'
+    implementation 'com.github.haifengl:smile-plot:2.6.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.2'
+    // https://mvnrepository.com/artifact/io.vacco.jsonbeans/jsonbeans
+    //implementation 'io.vacco.jsonbeans:jsonbeans:1.0.0'
+
+}
+
+application {
+    mainModule = "Game"
+    mainClassName = "something.townView"
+
+    if (project.hasProperty("mainClass")) {
+        getMainClass().set(project.getProperty("mainClass"))
+    }
+    else {
+        getMainClass().set(mainClassName)
+    }
+}
