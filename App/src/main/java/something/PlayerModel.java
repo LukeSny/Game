@@ -22,7 +22,7 @@ import something.townScene.LevelUpScene;
  */
 public class PlayerModel extends CharacterModel{
     public static int nextXOpen = 0;
-
+    public double ATWeight = 0.0;
     public PlayerModel(Character character, int x, int y){
         super(character, x, y);
     }
