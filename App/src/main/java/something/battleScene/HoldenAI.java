@@ -75,14 +75,14 @@ public ArrayList<PlayerModel> FindAT(EnemyModel enemy){
             character.ATWeight += 1000.0;
         }
         character.ATWeight -= (character.getDefense()/2);
-        character.ATWeight += (character.getDamage()/2)
+        character.ATWeight += (character.getDamage()/2);
         character.ATWeight -= character.getCharacter().hp.getValue();
         //if(character.getClass() == healer){
         //character.ATWeight = character.ATWeight + 20.0}
         targets.add(character);
 
     }
-    targets.sort(<, )
+    return targets;
 }
 
 
