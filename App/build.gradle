@@ -54,6 +54,7 @@ dependencies {
 
 }
 
+
 application {
     mainModule = "Game"
     mainClassName = "something.townView"
