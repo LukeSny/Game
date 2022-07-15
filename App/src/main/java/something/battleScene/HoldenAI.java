@@ -9,7 +9,7 @@ import something.PlayerModel;
 import java.util.ArrayList;
 
 /* This exists as a method for me to fuck around and find out what I can do here. I'm dabbin.
-Let's see what I can make while having no knowledge of what any of your code does and barely remembering java.
+Let's see what I can make while having no knowledge of what any of your code does and barely remembering java. Dummy.
  */
 public class HoldenAI {
 
