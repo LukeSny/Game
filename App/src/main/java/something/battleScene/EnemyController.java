@@ -104,7 +104,7 @@ public class EnemyController{
      */
     public Tile findTile(EnemyModel enemy, Tile tile) {
         //System.out.println("Current distance: " + getDistance(enemy, tile));
-        if (getDistance(enemy, tile) <= Math.sqrt(enemy.moveDist()* enemy.moveDist() * 2) +.01 && !grid.tileTaken(tile)) {
+        if (getDistance(enemy, tile) <= Math.sqrt(enemy.moveDist()* enemy.moveDist() * 2) +.01 && grid.tileIsFree(tile)) {
             //System.out.println("closest tile found for " + enemy.getCharacter().name + " x: " + tile.getX() + " y: " +tile.y);
             return tile;
         }
@@ -129,7 +129,7 @@ public class EnemyController{
                     Tile looking = grid.emptyTiles[i][j];
                     double lookingDist = getDistance(thing, looking);
                     //if the distance is shorter AND that spot isnt taken, make it the best candidate
-                    if (lookingDist < distance && !grid.tileTaken(looking)) {
+                    if (lookingDist < distance && grid.tileIsFree(looking)) {
 
                         closest = looking;
                         distance = lookingDist;

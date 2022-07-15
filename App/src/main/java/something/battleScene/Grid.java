@@ -144,8 +144,8 @@ public class Grid {
      * @param tile that needs to be checked if its taken or not
      * @return boolean representing if the given tile is taken
      */
-    public boolean tileTaken(Tile tile){
-        return modelTiles[tile.x][tile.y] != null;
+    public boolean tileIsFree(Tile tile){
+        return modelTiles[tile.x][tile.y] == null;
     }
 
     /**
@@ -181,7 +181,7 @@ public class Grid {
                 tile.back.setId("empty");
                 setInitialTranslate(tile);
                 System.out.println("tile coord | tile trans: " + tile + ", (" + tile.getBack().getTranslateX() + ", " + tile.getBack().getTranslateY() + ")");
-                if (!tileTaken(tile)){
+                if (tileIsFree(tile)){
                     gridView.getChildren().add(tile.back);
                 }
                 emptyTiles[i][j] = tile;
@@ -209,6 +209,7 @@ public class Grid {
         remainder = 0;
         if (tileWidth > tileHeight){
             remainder = (tileWidth - tileHeight) * GRID_COL;
+            //noinspection SuspiciousNameCombination
             tileWidth = tileHeight;
         }
         tileSize = tileWidth;
@@ -538,7 +539,7 @@ public class Grid {
      * @param attacker the Model that is attacking
      * @param defender the Model that is getting rekt m8
      */
-    public TranslateTransition attack(CharacterModel attacker, CharacterModel defender){
+    public void attack(CharacterModel attacker, CharacterModel defender){
         TranslateTransition attackAni = new TranslateTransition();
         if(inRange(attacker, defender)) {
             System.out.println("defended " + defender.getDefense() + " amount of damage");
@@ -563,7 +564,6 @@ public class Grid {
                 killEntity(defender);
             }
         }
-        return attackAni;
     }
 
     /**
@@ -644,9 +644,7 @@ public class Grid {
         }
         back.getChildren().add(exit);
 
-        exit.setOnAction(c -> {
-            world.enterWorld();
-        });
+        exit.setOnAction(c -> world.enterWorld());
     }
 
 
@@ -674,9 +672,10 @@ public class Grid {
     /**
      * safer way to remove a model from the grid
      * updates the modelTiles to reflect the removal
-     * takes it out of the Gridpane and then adds the empty tile to replace it
+     * takes it out of the GridPane and then adds the empty tile to replace it
      * @param thing the model to be removed
      */
+    @SuppressWarnings("SuspiciousMethodCalls")
     public void remove(CharacterModel thing){
         if (thing instanceof PlayerModel) {
             party.getModels().remove(thing);
