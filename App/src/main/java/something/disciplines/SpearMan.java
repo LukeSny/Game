@@ -22,12 +22,16 @@ public class SpearMan extends Discipline {
     public SpearMan(){
         super(.7,2, 3, 10, 5, 3, "poop.jpg");
         name = "SpearMan";
+
+        abilities.add(Ability.throwSpear);
     }
 
     @Override
 
     public SpearMan cloneObj(){
-        return new SpearMan();
+        SpearMan out = new SpearMan();
+        out.abilities.addAll(abilities);
+        return out;
     }
 
 }

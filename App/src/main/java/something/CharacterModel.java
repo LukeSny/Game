@@ -282,4 +282,9 @@ public abstract class CharacterModel implements Serializable {
         effects.add(effect);
     }
 
+    public void takeGuardedDamage(int num){
+        num-= getDefense();
+        character.takeDamage(num);
+    }
+
 }

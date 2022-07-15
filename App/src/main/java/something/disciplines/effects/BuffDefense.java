@@ -24,6 +24,9 @@ public class BuffDefense extends Effect{
     public BuffDefense(String name, String url, CharacterModel mod, int time, int adder){
         super(mod, time, name, url);
         addition = adder;
+        if (addition == 0)
+            addition = 5;
+        description = "buff defense by " + addition;
     }
 
     @Override

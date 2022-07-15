@@ -154,8 +154,7 @@ import java.util.ArrayList;
 //            else if(c.getCode() == KeyCode.DIGIT2){
 //                    System.out.println("pressed 2 ab|at: "+ abilityMode + " | " + attackMode);
 //                    if(!stillFighting) return;
-//                    //if its a self buff, just do the thing
-//                    if (selected.getCharacter().discipline.selfBuff)
+//
 //                        selected.getCharacter().discipline.ability(grid);
 //                    else if(!abilityMode) {
 //                        abilityMode = true;

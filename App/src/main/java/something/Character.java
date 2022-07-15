@@ -180,7 +180,7 @@ public class Character {
         this.hit+=num;
     }
 
-    public void takeDamage(int num){
+    public void takeDamage(int num) {
         if (num <= 0)
             return;
         int health = this.hp.getValue();

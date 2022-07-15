@@ -369,16 +369,16 @@ public class Grid {
         for (PlayerModel model : party.getModels()){
             model.getRoot().setOnMouseClicked(c -> {
                 if(!stillFighting) return;
-                if (abilityMode) {
-                    selectedAbility.abilityAction(selectedModel.get(), model);
-                    if (model.getCharacter().hp.getValue() <= 0)
-                        killEntity(model);
-                    abilityMode = false;
-                    removeHighlight();
-                    System.out.println("ability name: " + selectedAbility.name);
-                    selectedModel.get().getCharacter().actionPoints -= selectedAbility.apCost;
-                    System.out.println("reduced " + selectedModel.get().getName() + " ap by " + selectedAbility.apCost);
-                    updateSidePanel();
+                if (abilityMode && selectedAbility.isReady()) {
+                        selectedAbility.abilityAction(selectedModel.get(), model);
+                        if (model.getCharacter().hp.getValue() <= 0)
+                            killEntity(model);
+                        abilityMode = false;
+                        removeHighlight();
+                        System.out.println("ability name: " + selectedAbility.name);
+                        selectedModel.get().getCharacter().actionPoints -= selectedAbility.apCost;
+                        System.out.println("reduced " + selectedModel.get().getName() + " ap by " + selectedAbility.apCost);
+                        updateSidePanel();
                 }
                 else {
                     selectedModel.set(model);
@@ -395,7 +395,7 @@ public class Grid {
                     attackMode = false;
                     removeHighlight();
                 }
-                else if (abilityMode && stillFighting){
+                else if (abilityMode && stillFighting && selectedAbility.isReady()){
                     selectedAbility.abilityAction(selectedModel.get(), enemy);
                     if (enemy.getCharacter().hp.getValue() <= 0)
                         killEntity(enemy);
@@ -464,8 +464,6 @@ public class Grid {
         if (temp.apCost > selectedModel.get().getCharacter().actionPoints) return;
         selectedAbility = temp;
         //if its a self buff, just do the thing
-        if (selectedAbility.selfBuff)
-            selectedAbility.abilityAction(selected, null);
         abilityMode = true;
         attackMode = false;
         highLightAbility();
@@ -816,6 +814,8 @@ class AbilityBox{
         image = new ImageView(imageURL);
         imageStack = new StackPane();
         coolDownImage = new ImageView();
+        coolDownImage.setFitWidth(width-2);
+        coolDownImage.setFitHeight(width-2);
         if (coolDown == 1)
             coolDownImage.setImage(new Image("ability/cooldown1.png"));
         else if (coolDown == 2)

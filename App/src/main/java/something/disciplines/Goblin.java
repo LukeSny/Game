@@ -16,16 +16,22 @@ package something.disciplines;
 
 import something.CharacterModel;
 import something.battleScene.Grid;
+import something.disciplines.effects.DOT;
+
+import java.util.function.BiConsumer;
 
 public class Goblin extends Discipline{
     public Goblin(){
-        super(.7,1, 4, 10, 20, 3,"models/goblin.png");
+        super(.7,1, 2, 10, 20, 3,"models/goblin.png");
         name = "Goblin";
+        abilities.add(Ability.poison);
     }
 
 
 
     public Goblin cloneObj(){
-        return new Goblin();
+        Goblin out = new Goblin();
+        out.abilities.addAll(abilities);
+        return out;
     }
 }

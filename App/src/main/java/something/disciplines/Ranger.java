@@ -23,10 +23,13 @@ public class Ranger extends Discipline {
     public Ranger(){
         super(.5,3, 2, 5, 15, 3, "models/rangerImage.jpg");
         name = "Ranger";
+        abilities.add(Ability.doubleTap);
     }
 
     public Ranger cloneObj(){
-        return new Ranger();
+        Ranger out = new Ranger();
+        out.abilities.addAll(abilities);
+        return out;
     }
 
 }

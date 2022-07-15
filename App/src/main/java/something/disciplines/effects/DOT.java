@@ -22,6 +22,7 @@ public class DOT extends Effect {
     public DOT(String name, String image, CharacterModel mod, int time, int dam){
         super(mod, time, name, image);
         damage = dam;
+        description = "take " + dam + " per turn";
     }
 
     public void activate(){

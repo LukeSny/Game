@@ -25,6 +25,7 @@ public class BuffDamage extends Effect{
     public BuffDamage(String name, String url, CharacterModel mod, int time, int multiple){
         super(mod, time, name, url);
         scalar = multiple;
+        description = "damage multiplied by " + multiple;
     }
 
     @Override

@@ -102,6 +102,8 @@ public class EnemyController{
      * @param tile recursive parameter, initial condition is Playermodel's tile
      * @return a tile closer to the playerModel this enemy is targeting until finds a tile close enough to move
      */
+    //TODO: this is the method to consider the ap cost of the move, I am going to write a simple method so they move as
+    //TODO: far as they can with their current action points
     public Tile findTile(EnemyModel enemy, Tile tile) {
         //System.out.println("Current distance: " + getDistance(enemy, tile));
         if (getDistance(enemy, tile) <= Math.sqrt(enemy.moveDist()* enemy.moveDist() * 2) +.01 && grid.tileIsFree(tile)) {

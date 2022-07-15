@@ -19,31 +19,22 @@ import something.disciplines.effects.HOT;
 
 import java.util.function.BiConsumer;
 
+
 public class Healer extends Discipline{
     public Healer(){
         super(.1,1, 1, 5, 20, 3, "models/healer.png");
         name = "Healer";
 
-        Ability heal = new Ability("heal", 2, 2,2, false, false, "ability/heal.png", new BiConsumer<CharacterModel, CharacterModel>() {
-            @Override
-            public void accept(CharacterModel self, CharacterModel other) {
-                other.heal(self.getCharacter().strength);
-            }
-        });
-        Ability regen = new Ability("regen", 3,2, 2, false, false, "ability/HOT.png", new BiConsumer<CharacterModel, CharacterModel>() {
-            @Override
-            public void accept(CharacterModel self, CharacterModel other) {
-                other.addEffect(new HOT("regen", "ability/HOT.png", other, 3, self.getCharacter().strength/2));
-            }
-        });
-        abilities.add(heal);
-        abilities.add(regen);
+        abilities.add(Ability.heal);
+        abilities.add(Ability.regen);
     }
 
 
 
     public Healer cloneObj(){
-        return new Healer();
+        Healer out = new Healer();
+        out.abilities.addAll(abilities);
+        return out;
     }
 
 }

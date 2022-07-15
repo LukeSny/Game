@@ -24,6 +24,7 @@ public class ReduceMove extends Effect{
     public ReduceMove(String name, String image, CharacterModel mod, int time, int amt){
         super(mod, time, name, image);
         amount = amt;
+        description = "reduce move by " + amt;
     }
 
     @Override

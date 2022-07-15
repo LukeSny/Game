@@ -17,15 +17,21 @@ package something.disciplines;
 import something.CharacterModel;
 import something.battleScene.Grid;
 
+import java.util.function.BiConsumer;
+
 public class Bandit extends Discipline{
     public Bandit(){
-        super(.5,3, 3, 5, 15, 3, "models/bandit.png");
+        super(.5,3, 1, 5, 15, 3, "models/bandit.png");
         name = "Bandit";
+
+        abilities.add(Ability.healSelfImmediate);
     }
 
 
 
     public Bandit cloneObj(){
-        return new Bandit();
+        Bandit out = new Bandit();
+        out.abilities.addAll(abilities);
+        return out;
     }
 }
