@@ -27,5 +27,6 @@ public class Armor extends Item{
     public Armor cloneObj(){
         Armor out = new Armor(name, price, image.getImage().getUrl(), slot, def, description);
         return out;
+        //this is a test
     }
 }
