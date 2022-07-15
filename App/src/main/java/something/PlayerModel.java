@@ -47,6 +47,7 @@ public class PlayerModel extends CharacterModel{
         return out;
     }
 
+
     public boolean canLevel(){
         return character.xp.get() >= character.maxXp;
     }
