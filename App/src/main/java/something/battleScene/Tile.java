@@ -19,7 +19,7 @@ import something.Runnable;
 
 /**
  * super simple class mainly to house information
- * just has a rectangle and the the (x,y) coords representing where it is
+ * just has a rectangle and the (x,y) coords representing where it is
  * used in the Grid as the empty tiles
  */
 public class Tile {

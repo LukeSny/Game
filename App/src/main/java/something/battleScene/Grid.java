@@ -38,39 +38,64 @@ import something.worldScene.World;
 
 import java.util.ArrayList;
 
+/**
+ * main driver class for fights
+ * grid and controller merged, so it is super long
+ * governs both the visualization of the battleScene and the underlying logic to control the PlayerModel
+ * EnemyController handles enemy movement and that is then utilized here
+ */
 public class Grid {
-
+    /*dimensions of the battleField*/
     public static final int GRID_ROWS = 10;
     public static final int GRID_COL = 15;
+    /*basically the true root, 90% of the battle will interact with this*/
     public AnchorPane gridView;
+    /*exists so the endBattle popUp appears in the middle of the screen*/
     public StackPane root;
+    /*Player's party*/
     Party party;
+    /*representation of the enemies, houses EnemyModel, lootDrop, xpReward, all that*/
     EnemyWorldModel enemies;
 
+    /**
+     * an ObjectProperty allows you to attach "listeners" to the variable
+     * listeners run given code whenever the variable is reassigned, see each one's ".addListener" to see what happens
+     *
+     * selectedModel is the PlayerModel the user is currently interacting with
+     */
     public SimpleObjectProperty<PlayerModel> selectedModel;
-    public SimpleObjectProperty<Tile> selectedEmpty;
 
+    /*underlying representation/storage of tiles*/
     public Tile[][] emptyTiles;
+    /*underlying representation of both player and enemy models*/
     public CharacterModel[][] modelTiles;
+    /*reference to the overWorld*/
     World world;
+    /*size of each given tile*/
     int tileSize;
+    /*size of the space left over on the sides of the screen after equalizing tile width and height*/
     int remainder;
 
+    /*list of boolean values to denote game states*/
+    /*stillFighting is true until either victory or defeat, on false locks most user interaction*/
     boolean stillFighting;
+    /*denotes if the user has selected the attack option*/
     boolean attackMode;
+    /*denotes if the user has selected any ability option*/
     boolean abilityMode;
+    /*ability the user has selected to use*/
     Ability selectedAbility;
+    /*list of items that are taken back after user's characters die*/
     ArrayList<ItemCard> reclaimed;
 
+    /*sidePanel that shows character stats, abilities, and status effects*/
     VBox sidePanel;
 
     /**
-     * this class is the main driver for fights, which should probably be changed
-     * has the underlying framework and visuals for the fightScene
-     * also has logic to move PlayerModels based on user input
-     *
+     * initializes the fight by creating both 2d arrays and then setting the translations of all tiles and CharacterModels
      * @param pa user's party
-     * @param en the enemies in this grid
+     * @param en EnemyWorldModel that represents the enemy
+     * @param world reference to the over-world
      */
     public Grid(Party pa, EnemyWorldModel en, World world){
         this.world = world;
@@ -82,7 +107,6 @@ public class Grid {
         world.primaryStage.getScene().setRoot(root);
 
         selectedModel = new SimpleObjectProperty<>();
-        selectedEmpty = new SimpleObjectProperty<>();
         emptyTiles = new Tile[GRID_ROWS][GRID_COL];
         modelTiles = new CharacterModel[GRID_ROWS][GRID_COL];
 
@@ -97,7 +121,6 @@ public class Grid {
         for (EnemyModel enemyModel : enemies.getEnemies()){
             addEnemy(enemyModel);
         }
-
         selectedModel.addListener(c -> {
             if (selectedModel.get() == null)return;
             System.out.println("selected model moveDist: " + selectedModel.get().getCharacter().name + " " + selectedModel.get().moveDist());
@@ -106,8 +129,6 @@ public class Grid {
             highLightActionMove();
             updateSidePanel();
         });
-        selectedEmpty.addListener(c-> moveSelected());
-
         stillFighting = true;
         abilityMode = false;
         attackMode = false;
@@ -126,18 +147,15 @@ public class Grid {
     public boolean tileTaken(Tile tile){
         return modelTiles[tile.x][tile.y] != null;
     }
+
+    /**
+     * update thing.x and thing.y to match the tile's x and y
+     * @param thing CharacterModel to be updated
+     * @param newSpot Tile that thing is moving to
+     */
     public void swapSpot(CharacterModel thing, Tile newSpot){
         modelTiles[thing.getX()][thing.getY()] = null;
         modelTiles[newSpot.x][newSpot.y] = thing;
-    }
-
-    /**
-     * safer way to add player, adds it to the modelTiles as well as to the GridPane
-     * @param player Model to be added
-     */
-    public void addPlayer(PlayerModel player){
-        modelTiles[player.getX()][player.getY()] = player;
-        gridAdd(player);
     }
     /**
      * safer way to add enemy, adds it to the modelTiles as well as to the GridPane
@@ -152,6 +170,8 @@ public class Grid {
     /**
      * creates the empty tiles for the game
      * adds them to the GridPane and to the emptyTiles array[][]
+     * sets their translations with setInitialTranslate()
+     * if the tiles x and y are occupied by a CharacterModel in the modelTiles[][], then dont add it to the scene
      */
     public void buildMappy(){
         for (int j = 0; j < GRID_COL; j++) {
@@ -174,12 +194,12 @@ public class Grid {
         printEmptyGrid();
 
         sidePanel.setPrefSize(remainder, world.height);
-        //sidePanel.setTranslateX(0);
 
     }
 
     /**
      * initialize the grid's modelTiles to reflect the Players and Enemies of the grid
+     * creates the tileSize and remainder that will be used to construct the rest of the screen
      */
     public void initModelGraph(){
         int tileWidth = world.width / GRID_COL;
@@ -221,9 +241,8 @@ public class Grid {
      * at the end, set the selected tile to a not on grid tile so that it doesn't highlight weird things
      * stupid fix, but a fix nonetheless
      */
-    public void moveSelected(){
+    public void moveSelected(Tile empty){
         PlayerModel model = selectedModel.get();
-        Tile empty = selectedEmpty.get();
         if (model == null) return;
         if (empty == null) return;
 
@@ -241,16 +260,13 @@ public class Grid {
         TranslateTransition movement = new TranslateTransition();
         movement.setOnFinished(c -> gridView.getChildren().add(emptyTiles[tempX][tempY].back));
         movement.setInterpolator(Interpolator.LINEAR);
-        movement.setToX(selectedEmpty.get().getBack().getTranslateX());
-        movement.setToY(selectedEmpty.get().getBack().getTranslateY());
+        movement.setToX(empty.getBack().getTranslateX());
+        movement.setToY(empty.getBack().getTranslateY());
         movement.setNode(selectedModel.get().getRoot());
         movement.play();
         gridView.getChildren().remove(empty.back);
         model.setX(empty.x);
         model.setY(empty.y);
-
-        Tile rand = new Tile(1000,1000, 0, 0);
-        selectedEmpty.set(rand);
 
         //remove blue highlights
         removeHighlight();
@@ -270,6 +286,9 @@ public class Grid {
         }
     }
 
+    /**
+     * highlight each tile depending on how many action points it would take the current player to get there
+     */
     public void highLightActionMove(){
         PlayerModel model = selectedModel.get();
         if (model == null) return;
@@ -298,14 +317,17 @@ public class Grid {
         }
     }
 
-    public void highLightAbility(int num){
+    /**
+     * highlight around the selectedModel the range of the current selectedAbility is
+     */
+    public void highLightAbility(){
         PlayerModel model = selectedModel.get();
         if(model == null) return;
         //TODO: add a check to see if they can use the ability
         removeHighlight();
         for (int i = 0; i < GRID_ROWS; i++) {
             for (int j = 0; j < GRID_COL; j++) {
-                if (getDistance(model, emptyTiles[i][j]) <= num)
+                if (getDistance(model, emptyTiles[i][j]) <= selectedAbility.abilityRange)
                     emptyTiles[i][j].back.setFill(Color.GREEN);
             }
         }
@@ -319,9 +341,7 @@ public class Grid {
         PlayerModel model = selectedModel.get();
         //safety checks
         if(model == null) return;
-        System.out.println("attempting attack: " + model.getCharacter().canAttack());
         if(!model.getCharacter().canAttack())return;
-        //attackMode = true;
         removeHighlight();
         for (int i = 0; i < GRID_ROWS; i++) {
             for (int j = 0; j < GRID_COL; j++) {
@@ -331,6 +351,17 @@ public class Grid {
         }
     }
 
+    /**
+     * massively important method, establishes most user interactions
+     * first section binds each PlayerModel
+     *          if in abilityMode, use the ability on the clicked playerModel
+     *          else make them the selectedModel
+     * second is enemyBind
+     *          if clciked and an attack is valid, selectedModel attacks clicked enemy
+     *          else if there is a valid ability, use ability on clicked enemy
+     * third is each tile, if a valid move can be made, move selectedModel to the clicked tile
+     * last section is for keyBinds
+     */
     public void initBindings(){
         //all bindings that should happen for player
         party.getModels().forEach(c -> System.out.println("name: " + c.getCharacter().name));
@@ -377,18 +408,14 @@ public class Grid {
         //all bindings for empty tiles
         for (int i = 0; i < GRID_ROWS; i++) {
             for (int j = 0; j < GRID_COL; j++) {
-
                 Tile tile = emptyTiles[i][j];
                 tile.back.setOnMouseClicked(c-> {
                     if(!stillFighting) return;
-                    selectedEmpty.set(tile);
+                    moveSelected(tile);
                 });
             }
         }
-
-
         //this section is dedicated to quick bind keys
-
         world.primaryStage.getScene().setOnKeyReleased(c -> {
             System.out.println("battle key detected");
             PlayerModel selected = selectedModel.get();
@@ -404,49 +431,33 @@ public class Grid {
             }
             //attack
             else if(c.getCode() == KeyCode.DIGIT2) {
-                enterAttackMode(selected);
+                enterAttackMode();
             }
             else if(c.getCode() == KeyCode.DIGIT3){
                 if (selectedModel.get().getCharacter().discipline.abilities.size() > 0)
-                    enterAbility1(selected);
+                    enterAbility(selected, 0);
             }
             else if(c.getCode() == KeyCode.DIGIT4){
                 if (selectedModel.get().getCharacter().discipline.abilities.size() > 1)
-                    enterAbility2(selected);
+                    enterAbility(selected, 1);
             }
             else if(c.getCode() == KeyCode.DIGIT5){
                 if (selectedModel.get().getCharacter().discipline.abilities.size() > 2)
-                    enterAbility3(selected);
+                    enterAbility(selected, 2);
             }
             else if (c.getCode() == KeyCode.DIGIT0)
                 victory();
         });
-
     }
 
-    private void enterAbility1(PlayerModel selected) {
-
+    /**
+     * each of these is the same but for different highLights
+     * @param selected the PlayerModel currently selected
+     */
+    private void enterAbility(PlayerModel selected, int abilityNumber) {
         if (!stillFighting) return;
         if (selected == null) return;
-        Ability temp = selected.getCharacter().discipline.abilities.get(0);
-        doAbility(temp, selected);
-    }
-
-    private void enterAbility2(PlayerModel selected) {
-        if (!stillFighting) return;
-        if (selected == null) return;
-        Ability temp = selected.getCharacter().discipline.abilities.get(1);
-        doAbility(temp, selected);
-    }
-
-    private void enterAbility3(PlayerModel selected) {
-        if (!stillFighting) return;
-        if (selected == null) return;
-        Ability temp = selected.getCharacter().discipline.abilities.get(2);
-        doAbility(temp, selected);
-    }
-
-    private void doAbility(Ability temp, PlayerModel selected) {
+        Ability temp = selected.getCharacter().discipline.abilities.get(abilityNumber);
         if (temp.abilityTimer != 0) return;
         if (temp.apCost > selectedModel.get().getCharacter().actionPoints) return;
         if (temp.apCost > selectedModel.get().getCharacter().actionPoints) return;
@@ -456,15 +467,18 @@ public class Grid {
             selectedAbility.abilityAction(selected, null);
         abilityMode = true;
         attackMode = false;
-        highLightAbility(selectedAbility.abilityRange);
+        highLightAbility();
 //                   if (selectedModel.get().getCharacter().discipline.targetGrid)
 //                       selected.getCharacter().discipline.ability(this);
         updateSidePanel();
     }
 
-    private void enterAttackMode(PlayerModel selected) {
+    /**
+     * sets the grid to be ready for the user to make an attack, highLights attack range for selectedModel
+     */
+    private void enterAttackMode() {
         if (!stillFighting) return;
-        if (selected.getCharacter().canAttack()) {
+        if (selectedModel.get().getCharacter().canAttack()) {
             highlightAttack();
             attackMode = true;
             abilityMode = false;
@@ -474,12 +488,9 @@ public class Grid {
             highLightActionMove();
         }
     }
-
-
     /**
-     * ends the current round, which involves
-     * having each enemy move and/or attack
-     * resetting each player's canMove and canAttack
+     * ends the current round, which involves having each enemy move and/or attack
+     * enaching each status effect and regening AP
      * clearing all highlights
      */
     public void endRound(){
@@ -522,7 +533,6 @@ public class Grid {
     }
 
     /**
-     * if the attacker is a PlayerModel, the disable it attacking again
      * if the defender's health goes below 1, remove them from the board and modelTiles
      * if there are no more enemies, call victory, basically locks everything up
      * @param attacker the Model that is attacking
@@ -556,6 +566,9 @@ public class Grid {
         return attackAni;
     }
 
+    /**
+     * plays when all PlayerModels are killed, needs to be made better but... meh just dont lose lol
+     */
     public void defeat(){
         VBox back = new VBox();
         world.stylePopUp(back);
@@ -577,7 +590,7 @@ public class Grid {
     }
 
     /**
-     * locks everything up and prevents user from playing after the battle, adds a label indicating victory
+     * locks everything up and prevents user from playing after the battle
      */
     public void victory(){
 
@@ -587,6 +600,10 @@ public class Grid {
         afterBattleUpdate();
     }
 
+    /**
+     * adds a screen that displays loot and a button to go back to over world
+     * gives each character the xp reward, adds gold and item loot to party
+     */
     private void afterBattleUpdate(){
         for (PlayerModel model : party.getModels()){
             model.getCharacter().giveXp(enemies.getXpReward() / party.getModels().size());
@@ -632,6 +649,8 @@ public class Grid {
         });
     }
 
+
+
     public boolean inRange(CharacterModel attacker, CharacterModel defender){
         System.out.println("dist: " + getDistance(attacker, defender) + " |range: " + Math.sqrt(attacker.range()*attacker.range() * 2) + .1);
         System.out.println("attacker x,y: " + attacker.getX() + "|" + attacker.getY());
@@ -669,13 +688,9 @@ public class Grid {
         gridView.getChildren().remove(thing.getRoot());
         gridAdd(emptyTiles[thing.getX()][thing.getY()]);
     }
+    /**past this point is mostly just helper methods for the ones above*/
 
-    public boolean inMoveDist(CharacterModel model, Tile tile){
-        return getDistance(model, tile) < Math.sqrt(model.moveDist() * model.moveDist() * 2) + .01;
-    }
-    public boolean inAttackRange(CharacterModel attacker, CharacterModel defender){
-        return getDistance(attacker, defender) < Math.sqrt(attacker.range() * attacker.range() * 2) + .01;
-    }
+
     public boolean inAttackRange(CharacterModel attacker, Tile tile){
         return getDistance(attacker, tile) < Math.sqrt(attacker.range() * attacker.range() * 2) + .01;
     }
@@ -751,6 +766,10 @@ public class Grid {
         }
     }
 
+    /**
+     * exception to the helper methods down here, updates the sidePanel to reflect the status of selectedModel
+     * displays selectedModel's name, ap, abilities, and status effects
+     */
     private void updateSidePanel(){
         if (selectedModel.get() == null) return;
         sidePanel.getChildren().clear();
@@ -760,18 +779,18 @@ public class Grid {
         move.root.setOnMouseClicked(c -> highLightActionMove());
         AbilityBox attack = new AbilityBox("attack", 0,2, remainder, "ability/attackImage.png");
         attack.root.setOnMouseClicked(c -> {
-            enterAttackMode(selectedModel.get());
+            enterAttackMode();
         });
         sidePanel.getChildren().addAll(name, ap, move.root, attack.root);
         for (int i = 0; i < selectedModel.get().getCharacter().discipline.abilities.size(); i++) {
             Ability current = selectedModel.get().getCharacter().discipline.abilities.get(i);
             AbilityBox box = new AbilityBox(current.name, current.abilityTimer, i+3, remainder, current.imageURL);
             if (i == 0)
-                box.root.setOnMouseClicked(c -> enterAbility1(selectedModel.get()));
+                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 0));
             if (i == 1)
-                box.root.setOnMouseClicked(c -> enterAbility2(selectedModel.get()));
+                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 1));
             if (i == 2)
-                box.root.setOnMouseClicked(c -> enterAbility3(selectedModel.get()));
+                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 2));
             sidePanel.getChildren().add(box.root);
         }
         Rectangle divider = new Rectangle(remainder, 10);
@@ -784,7 +803,7 @@ public class Grid {
     }
 
 }
-
+/**both of these classes are helper classes for the updateSidePanel()*/
 class AbilityBox{
 
     VBox root;

@@ -31,6 +31,10 @@ public class EnemyController{
 
     /**
      * best I could do right now
+     * if the enemy is within attack range of the closest enemy, do not move
+     * if the enemy could possibly move onto the same tile as the closest enemy, find the tile between enemy and character
+     * and move there
+     * else just move as close as possible
      * @param enemy Enemy model that will be moved
      */
     public void enemyMovement(EnemyModel enemy){
@@ -58,7 +62,11 @@ public class EnemyController{
 
     }
 
-
+    /**
+     * method that governs the movement of each enemy, includes an animation to the given tile
+     * @param enemy enemyModel that needs to be moved
+     * @param tile tile that the enemy will move to
+     */
     public void move(EnemyModel enemy, Tile tile){
 
         //update modelTiles
@@ -105,7 +113,8 @@ public class EnemyController{
     }
 
     /**
-     *
+     * loops around the given center tile and compares the distance of the tiles, return the tile that has the least
+     * distance and is not taken
      * @param thing the thing that we want to find a closer tile to
      * @param center the tile that we are searching around
      * @return the tile that is adjacent to the center tile and closer to the given thing
@@ -135,7 +144,7 @@ public class EnemyController{
     }
 
     /**
-     *
+     * returns the PlayerModel that is the closest to the given enemyModel
      * @param enemy which needs to have the closest enemy assigned
      * @return the PlayerModel that is the closest to the given enemy
      */
