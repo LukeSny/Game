@@ -66,6 +66,17 @@ public class HoldenAI {
     attack range.
      */
 
+    /**
+     * Note for Holden if you remember to pull this down... if so thank you
+     * I updated the methods inside EnemyController, if you want to copy paste them back you can, or you can use them
+     * like this
+     *
+     * EnemyController enCon = new EnemyController(grid);
+     *     for (EnemyModel enemy : enemies.getEnemies()){
+     *        enCon.enemyMovement(enemy);
+     * Your call
+     */
+
 public ArrayList<PlayerModel> FindAT(EnemyModel enemy){
     // First, find enemies in range. Add weight to those enemies.
     ArrayList<PlayerModel> targets = null;

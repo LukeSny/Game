@@ -69,6 +69,10 @@ public class EnemyController{
      */
     public void move(EnemyModel enemy, Tile tile){
 
+        long actionNeeded = Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
+        enemy.getCharacter().actionPoints -= actionNeeded;
+        System.out.println("enemy ap after move: " + enemy.getCharacter().actionPoints);
+
         //update modelTiles
         grid.swapSpot(enemy, tile);
 
@@ -106,7 +110,8 @@ public class EnemyController{
     //TODO: far as they can with their current action points
     public Tile findTile(EnemyModel enemy, Tile tile) {
         //System.out.println("Current distance: " + getDistance(enemy, tile));
-        if (getDistance(enemy, tile) <= Math.sqrt(enemy.moveDist()* enemy.moveDist() * 2) +.01 && grid.tileIsFree(tile)) {
+        long actionNeeded = Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
+        if (actionNeeded <= enemy.getCharacter().actionPoints && grid.tileIsFree(tile)) {
             //System.out.println("closest tile found for " + enemy.getCharacter().name + " x: " + tile.getX() + " y: " +tile.y);
             return tile;
         }

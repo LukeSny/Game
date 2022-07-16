@@ -390,6 +390,8 @@ public class Grid {
         for (EnemyModel enemy : enemies.getEnemies()){
             enemy.getRoot().setOnMouseClicked(c -> {
                 System.out.println("enemy clicked, attackMode = " + attackMode);
+                enemy.getCharacter().strength = 0;
+                System.out.println("clicked enemy ap: " + enemy.getCharacter().actionPoints);
                 if (attackMode && selectedModel.get().getCharacter().canAttack() && stillFighting) {
                     attack(selectedModel.get(), enemy);
                     attackMode = false;
@@ -507,14 +509,11 @@ public class Grid {
                     attack(enemy, model);
                     break;
                 }
-
             }
+            enemy.playEffects();
             enemy.getCharacter().regenAction();
         }
         //activate status effects for everyone at the end of the round
-        for (EnemyModel enemy : enemies.getEnemies()){
-            enemy.playEffects();
-        }
         for (PlayerModel model : party.getModels()){
             model.playEffects();
             model.getCharacter().regenAction();
@@ -544,6 +543,7 @@ public class Grid {
             defender.getCharacter().takeDamage(attacker.getCharacter().attack() - defender.getDefense());
 
             attacker.getCharacter().actionPoints -= attacker.getCharacter().discipline.attackActionCost;
+            System.out.println("attacker action after defense: " + attacker.getName() + " | " + attacker.getCharacter().actionPoints);
             updateSidePanel();
 
             attackAni.setFromX(attacker.getRoot().getTranslateX());
