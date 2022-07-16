@@ -71,9 +71,8 @@ public class HoldenAI {
      * I updated the methods inside EnemyController, if you want to copy paste them back you can, or you can use them
      * like this
      *
-     * EnemyController enCon = new EnemyController(grid);
-     *     for (EnemyModel enemy : enemies.getEnemies()){
-     *        enCon.enemyMovement(enemy);
+     * EnemyController enCon = new EnemyController(grid);  //need to create an instance of the controller
+     *        enCon.enemyMovement(enemyModel);             //then reference it and then the method with enCon.methodName()
      * Your call
      */
 
