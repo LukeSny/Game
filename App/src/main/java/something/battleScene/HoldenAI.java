@@ -130,7 +130,9 @@ public void ChooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy
         }
 
         for(int i = 0; i < consideredTargets; i++){
-
+        if(encon.inRange(enemy, targets.get(i))){
+            //experiments need doing. I'll be back at this tomorrow.
+        }
     }
 }
 
