@@ -23,6 +23,7 @@ import something.disciplines.effects.Effect;
 import something.disciplines.effects.HOT;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class Warrior extends Discipline {
 
@@ -31,6 +32,16 @@ public class Warrior extends Discipline {
         name = "Warrior";
 
         abilities.add(Ability.shieldUp);
+
+        tankStart.setPreReq(start);
+
+        tankHeal.setPreReq(tankStart);
+        tankDef2.setPreReq(tankStart);
+
+        offenseStart.setPreReq(start);
+        offenseBuff.setPreReq(offenseStart);
+
+        perkTree = new PerkTree(start);
     }
 
     public Warrior cloneObj(){
@@ -38,4 +49,44 @@ public class Warrior extends Discipline {
         out.abilities.addAll(abilities);
         return out;
     }
+
+    Perk start = new Perk("First Step", "models/warriorImage.png", "the first step on becoming a true warrior", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.strength+=5;
+            character.extraDef+=5;
+        }
+    });
+    Perk tankStart = new Perk("Extra Def", "ability/buffDefense.png", "let them try and kill me", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.extraDef += 15;
+        }
+    });
+    Perk tankHeal = new Perk("Tank heal", "ability/HOT.png", "just need a a bandage", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.discipline.abilities.add(Ability.regen);
+        }
+    });
+    Perk tankDef2 = new Perk("Extra def2", "ability/buffDefense.png", "I'll add a few more plates", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.extraDef += 20;
+        }
+    });
+    Perk offenseStart = new Perk("Offense", "poop.jpg", "they should have stayed home", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.strength+= 10;
+        }
+    });
+    Perk offenseBuff = new Perk("Buff Ability", "poop.jpg", "My might is outragous", new Consumer<Character>() {
+        @Override
+        public void accept(Character character) {
+            character.discipline.abilities.add(Ability.buffOffense);
+        }
+    });
+
+
 }

@@ -15,6 +15,7 @@
 package something.disciplines;
 
 import something.CharacterModel;
+import something.disciplines.effects.BuffDamage;
 import something.disciplines.effects.BuffDefense;
 import something.disciplines.effects.DOT;
 import something.disciplines.effects.HOT;
@@ -71,30 +72,35 @@ public class Ability {
             other.heal(self.getCharacter().strength);
         }
     });
+
     public static final Ability regen = new Ability("regen", 3,2, 2, false, "ability/HOT.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
             other.addEffect(new HOT("regen", "ability/HOT.png", other, 3, self.getCharacter().strength/2));
         }
     });
+
     public static final Ability healSelfImmediate = new Ability("Field Care", 1, 3, 3, false, "ability/heal.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
             self.heal(self.getCharacter().hp.get() / 3);
         }
     });
+
     public static final Ability bigSmack = new Ability("Big Smak", 1, 3, 2, false, "ability/bigSmack.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
             other.takeGuardedDamage(self.getDamage() * 2);
         }
     });
+
     public static final Ability doubleTap = new Ability("Double Shot", 4, 4, 3, false, "ability/doubleShot.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
             other.takeGuardedDamage(self.getDamage() * 2);
         }
     });
+
     public static final Ability throwSpear = new Ability("throw spear", 4, 2,4, false, "ability/throwSpear.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
@@ -109,4 +115,10 @@ public class Ability {
         }
     });
 
+    public static final Ability buffOffense = new Ability("Rage", 1, 2, 4, false, "ability/buffOffense.png", new BiConsumer<CharacterModel, CharacterModel>() {
+        @Override
+        public void accept(CharacterModel self, CharacterModel other) {
+            self.addEffect(new BuffDamage("Buff Offense", "ability/buffOffense.png", self, 4, 1.5));
+        }
+    });
 }

@@ -40,7 +40,7 @@ public abstract class Discipline {
     //abilities for this class
     public ArrayList<Ability> abilities;
 
-
+    public PerkTree perkTree;
 
 
     public Discipline(double dmg, int range, int moveDist, int hit, int dodge, int actionCost, String url){

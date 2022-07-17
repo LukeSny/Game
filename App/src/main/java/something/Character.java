@@ -17,6 +17,7 @@ package something;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.image.ImageView;
 import something.disciplines.Discipline;
+import something.disciplines.Perk;
 
 
 import java.io.File;

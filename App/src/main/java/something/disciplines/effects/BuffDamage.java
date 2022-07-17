@@ -18,11 +18,11 @@ import something.CharacterModel;
 
 public class BuffDamage extends Effect{
 
-    int scalar;
+    double scalar;
     boolean hasTripped;
     double originalDamage;
 
-    public BuffDamage(String name, String url, CharacterModel mod, int time, int multiple){
+    public BuffDamage(String name, String url, CharacterModel mod, int time, double multiple){
         super(mod, time, name, url);
         scalar = multiple;
         description = "damage multiplied by " + multiple;

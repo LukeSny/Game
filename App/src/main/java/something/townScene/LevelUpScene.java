@@ -75,7 +75,7 @@ public class LevelUpScene extends TemplateScene{
         giveBorder(middlePanel);
 
         rightPanel = new VBox();
-        rightPanel.setPrefSize(Runnable.SCREEN_SIZE/2, Runnable.SCREEN_SIZE);
+        rightPanel.setPrefSize(world.width / 3, world.height);
         giveBorder(rightPanel);
 
 
@@ -467,6 +467,10 @@ public class LevelUpScene extends TemplateScene{
         equipment.setTop(head); equipment.setLeft(leftHand); equipment.setRight(rightHand);
         equipment.setCenter(torso); equipment.setBottom(legs);
         rightPanel.getChildren().add(equipment);
+
+        if (model.getCharacter().discipline.perkTree == null) return;
+        model.getCharacter().discipline.perkTree.constructView((int) rightPanel.getPrefWidth(), (int) rightPanel.getPrefHeight() / 2);
+        rightPanel.getChildren().add(model.getCharacter().discipline.perkTree.root);
     }
 
     public void detailedSizeImage(ImageView image){

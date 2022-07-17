@@ -51,7 +51,7 @@ import static something.Runnable.SCREEN_SIZE;
 public class World {
 
     /*the speed that the character moves, this should be changed to depend on user screen size*/
-    private static final int SPACE_MOVED = SCREEN_SIZE /100 + 10;
+    private double spaceMoved;
     /*distance the player needs to be for enemies to start chasing*/
     private static final int CHASE_DIST = 75;
     /*time delay between each clock loop, measured in ms*/
@@ -121,6 +121,8 @@ public class World {
         primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+
+        spaceMoved = height * .015;
 
         String music = "adventureMusic.mp3";
 //        Media sound = new Media(Runnable.class.getResource("adventureMusic.mp3").toExternalForm());
@@ -278,7 +280,7 @@ public class World {
                 translate.setToX(party.root.getTranslateX());
                 translate.setToY(party.root.getTranslateY());
                 double time = getDistance(party, model);
-                translate.setDuration(Duration.millis(time * SPACE_MOVED * 3));
+                translate.setDuration(Duration.millis(time * spaceMoved * 3));
                 translate.play();
             }
             else if (clockCycles % 20 == 0){
@@ -287,7 +289,7 @@ public class World {
                 double y = rand.nextDouble(model.root.getTranslateY() - 20, model.root.getTranslateY() + 20);
                 translate.setToX(x);
                 translate.setToY(y);
-                translate.setDuration(Duration.millis(getDistance(x,y) * SPACE_MOVED * 4));
+                translate.setDuration(Duration.millis(getDistance(x,y) * spaceMoved * 4));
                 translate.play();
             }
 
@@ -327,19 +329,19 @@ public class World {
         if(direction == Direction.NONE)
             return;
         if(direction == Direction.UP && spaceUp()) {
-            translate.setToY(party.root.getTranslateY() - SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() - spaceMoved);
             translate.setToX(party.root.getTranslateX());
         }
         if(direction == Direction.DOWN && spaceDown()) {
-            translate.setToY(party.root.getTranslateY() + SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() + spaceMoved);
             translate.setToX(party.root.getTranslateX());
         }
         if(direction == Direction.LEFT && spaceLeft()) {
-            translate.setToX(party.root.getTranslateX() - SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() - spaceMoved);
             translate.setToY(party.root.getTranslateY());
         }
         if(direction == Direction.RIGHT && spaceRight()) {
-            translate.setToX(party.root.getTranslateX() + SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() + spaceMoved);
             translate.setToY(party.root.getTranslateY());
         }
         if(direction == Direction.UP_LEFT) {
@@ -457,30 +459,30 @@ public class World {
      */
     private void moveUpLeft(TranslateTransition translate){
         if(spaceUp())
-            translate.setToY(party.root.getTranslateY() - SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() - spaceMoved);
         if(spaceLeft())
-            translate.setToX(party.root.getTranslateX() - SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() - spaceMoved);
         translate.play();
     }
     private void moveUpRight(TranslateTransition translate){
         if(spaceUp())
-            translate.setToY(party.root.getTranslateY() - SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() - spaceMoved);
         if(spaceRight())
-            translate.setToX(party.root.getTranslateX() + SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() + spaceMoved);
         translate.play();
     }
     private void moveDownLeft(TranslateTransition translate){
         if(spaceDown())
-            translate.setToY(party.root.getTranslateY() + SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() + spaceMoved);
         if(spaceLeft())
-            translate.setToX(party.root.getTranslateX() - SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() - spaceMoved);
         translate.play();
     }
     private void moveDownRight(TranslateTransition translate){
         if(spaceDown())
-            translate.setToY(party.root.getTranslateY() + SPACE_MOVED);
+            translate.setToY(party.root.getTranslateY() + spaceMoved);
         if(spaceRight())
-            translate.setToX(party.root.getTranslateX() + SPACE_MOVED);
+            translate.setToX(party.root.getTranslateX() + spaceMoved);
         translate.play();
     }
 

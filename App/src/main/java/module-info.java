@@ -10,6 +10,7 @@ module MyWork {
     exports something.townScene;
     exports something.worldScene;
     exports something;
+    exports something.disciplines;
 
 
 }
