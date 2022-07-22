@@ -65,6 +65,8 @@ public class Character {
     public int maxAction;
     public int actionRegen;
 
+    public int skillPoint;
+
     public Armor helmet;
     public Armor torso;
     public Armor legs;
@@ -107,6 +109,7 @@ public class Character {
         actionRegen = 5;
 
         this.image = new ImageView(discipline.imageURL);
+        skillPoint = 0;
     }
 
     public Character(String name, Discipline dis){
@@ -131,6 +134,7 @@ public class Character {
         actionRegen = 5;
 
         this.image = new ImageView(discipline.imageURL);
+        skillPoint = 0;
     }
 
     public Character(String name, Discipline dis, int hp, int maxHp, int xp, int maxXp, int str, int dodge, int hit, Armor helmet, Armor torso, Armor legs, Weapon weapon){
@@ -155,6 +159,7 @@ public class Character {
         maxAction = 10;
         actionPoints = 5;
         actionRegen = 5;
+        skillPoint = 0;
     }
 
     public int attack(){

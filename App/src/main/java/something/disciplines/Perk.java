@@ -34,8 +34,31 @@ public class Perk {
     public Consumer<Character> action;
     public VBox root;
     ArrayList<Perk> unlocks;
+    Perk requirement;
 
-    public Perk(String nam, String url, String descr, Consumer<Character> act){
+    public Perk(String nam, String url,  String descr, Perk req, Consumer<Character> act){
+        name = nam;
+        activeImage = new ImageView(url);
+        activeImage.setFitHeight(50);
+        activeImage.setFitWidth(50);
+        grayImage = new ImageView(url);
+        grayImage.setFitHeight(50);
+        grayImage.setFitWidth(50);
+        description = descr;
+        action = act;
+        root = new VBox();
+        unlocks = new ArrayList<>();
+
+        ColorAdjust grayScale = new ColorAdjust();
+        grayScale.setBrightness(-.5);
+        grayImage.setEffect(grayScale);
+
+        req.unlocks.add(this);
+        requirement = req;
+
+    }
+
+    public Perk(String nam, String url,  String descr, Consumer<Character> act){
         name = nam;
         activeImage = new ImageView(url);
         activeImage.setFitHeight(50);
@@ -53,6 +76,7 @@ public class Perk {
         grayImage.setEffect(grayScale);
 
     }
+
     public Perk(String nam){
         name = nam;
         unlocks = new ArrayList<>();
@@ -67,8 +91,14 @@ public class Perk {
     }
 
     public void activate(Character self){
-        activated = true;
-        action.accept(self);
+        if (activated) return;
+        System.out.println("requirement: " + requirement);
+        if (requirement == null || requirement.activated) {
+            //System.out.println("req activated? " + requirement.activated);
+            activated = true;
+            self.skillPoint--;
+            action.accept(self);
+        }
     }
     private ImageView getProperImage(){
         if (activated)

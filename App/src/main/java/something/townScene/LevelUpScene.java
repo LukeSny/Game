@@ -30,9 +30,12 @@ import javafx.scene.shape.Rectangle;
 import something.*;
 import something.Runnable;
 import something.battleScene.Tile;
+import something.disciplines.Perk;
+import something.disciplines.PerkTree;
 import something.worldScene.World;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class LevelUpScene extends TemplateScene{
 
@@ -185,6 +188,11 @@ public class LevelUpScene extends TemplateScene{
             }
             else if (c.getCode() == KeyCode.L && selectedPlayer != null && selectedPlayer.canLevel){
                 levelUp(selectedPlayer.model);
+            }
+            else if (c.getCode() == KeyCode.DIGIT0){
+                selectedPlayer.canLevel = true;
+                selectedPlayer.model.getCharacter().xp.set(1000);
+                drawPlayers();
             }
         });
         bindInventory();
@@ -469,8 +477,22 @@ public class LevelUpScene extends TemplateScene{
         rightPanel.getChildren().add(equipment);
 
         if (model.getCharacter().discipline.perkTree == null) return;
+        System.out.println("adding model perk tree");
         model.getCharacter().discipline.perkTree.constructView((int) rightPanel.getPrefWidth(), (int) rightPanel.getPrefHeight() / 2);
         rightPanel.getChildren().add(model.getCharacter().discipline.perkTree.root);
+        PerkTree.traverseTree(model.getCharacter().discipline.perkTree.base, new Consumer<Perk>() {
+            @Override
+            public void accept(Perk perk) {
+                perk.root.setOnMouseClicked(c -> {
+                    System.out.println("clicking perk");
+                    if (model.getCharacter().skillPoint > 0){
+                        System.out.println("unlocked perk");
+                        perk.activate(model.getCharacter());
+                        detailedCharView(model);
+                    }
+                });
+            }
+        });
     }
 
     public void detailedSizeImage(ImageView image){
@@ -525,6 +547,7 @@ public class LevelUpScene extends TemplateScene{
                 detailedCharView(model);
                 updateScene();
             }
+            model.getCharacter().skillPoint++;
         });
 
         popUp.getChildren().addAll(title, userHelp, hp, strength,dodge,hit, confirm);

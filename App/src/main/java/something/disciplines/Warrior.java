@@ -33,14 +33,6 @@ public class Warrior extends Discipline {
 
         abilities.add(Ability.shieldUp);
 
-        tankStart.setPreReq(start);
-
-        tankHeal.setPreReq(tankStart);
-        tankDef2.setPreReq(tankStart);
-
-        offenseStart.setPreReq(start);
-        offenseBuff.setPreReq(offenseStart);
-
         perkTree = new PerkTree(start);
     }
 
@@ -57,31 +49,31 @@ public class Warrior extends Discipline {
             character.extraDef+=5;
         }
     });
-    Perk tankStart = new Perk("Extra Def", "ability/buffDefense.png", "let them try and kill me", new Consumer<Character>() {
+    Perk tankStart = new Perk("Extra Def", "ability/buffDefense.png", "let them try and kill me", start, new Consumer<Character>() {
         @Override
         public void accept(Character character) {
             character.extraDef += 15;
         }
     });
-    Perk tankHeal = new Perk("Tank heal", "ability/HOT.png", "just need a a bandage", new Consumer<Character>() {
+    Perk tankHeal = new Perk("Tank heal", "ability/HOT.png", "just need a a bandage", tankStart, new Consumer<Character>() {
         @Override
         public void accept(Character character) {
             character.discipline.abilities.add(Ability.regen);
         }
     });
-    Perk tankDef2 = new Perk("Extra def2", "ability/buffDefense.png", "I'll add a few more plates", new Consumer<Character>() {
+    Perk tankDef2 = new Perk("Extra def2", "ability/buffDefense.png", "I'll add a few more plates", tankStart, new Consumer<Character>() {
         @Override
         public void accept(Character character) {
             character.extraDef += 20;
         }
     });
-    Perk offenseStart = new Perk("Offense", "poop.jpg", "they should have stayed home", new Consumer<Character>() {
+    Perk offenseStart = new Perk("Offense", "poop.jpg", "they should have stayed home", start, new Consumer<Character>() {
         @Override
         public void accept(Character character) {
             character.strength+= 10;
         }
     });
-    Perk offenseBuff = new Perk("Buff Ability", "poop.jpg", "My might is outragous", new Consumer<Character>() {
+    Perk offenseBuff = new Perk("Buff Ability", "poop.jpg", "My might is outragous", offenseStart, new Consumer<Character>() {
         @Override
         public void accept(Character character) {
             character.discipline.abilities.add(Ability.buffOffense);

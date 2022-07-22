@@ -26,11 +26,12 @@ import something.Save;
 import something.worldScene.World;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class PerkTree extends Application {
     ArrayList<PerkLayer> layers;
     public AnchorPane root = new AnchorPane();
-    Perk base;
+    public Perk base;
 
     public PerkTree(Perk based){
         base = based;
@@ -43,6 +44,7 @@ public class PerkTree extends Application {
 
     public void constructView(int width, int height){
         root.setPrefSize(width, height);
+        root.getChildren().clear();
         plotPerks(width, height);
     }
 
@@ -84,6 +86,13 @@ public class PerkTree extends Application {
         Line line = new Line(parent.root.getTranslateX(), parent.root.getTranslateY(), child.root.getTranslateX(),
                 child.root.getTranslateY());
         root.getChildren().add(line);
+    }
+
+    public static void traverseTree(Perk start, Consumer<Perk> function){
+        function.accept(start);
+        for (Perk current : start.unlocks){
+            traverseTree(current, function);
+        }
     }
 
 
@@ -133,14 +142,18 @@ public class PerkTree extends Application {
         PerkTree tree = new PerkTree(one);
         tree.constructView(500, 500);
 
-        for (Node child : tree.root.getChildren()) {
-            System.out.println(child);
-        }
         System.out.println("two's unlocks");
         two.unlocks.forEach(c -> System.out.println(c.name));
         Scene scene = new Scene(tree.root);
         primaryStage.setScene(scene);
         primaryStage.setTitle("PoopTown");
+
+        traverseTree(tree.base, new Consumer<Perk>() {
+            @Override
+            public void accept(Perk perk) {
+                System.out.println(perk.name);
+            }
+        });
 
         primaryStage.show();
     }
