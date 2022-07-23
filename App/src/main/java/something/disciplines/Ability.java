@@ -20,6 +20,7 @@ import something.disciplines.effects.BuffDefense;
 import something.disciplines.effects.DOT;
 import something.disciplines.effects.HOT;
 
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class Ability {
@@ -32,6 +33,20 @@ public class Ability {
     public boolean targetGrid;
     public String imageURL;
     public int apCost;
+
+    public static ArrayList<Ability> fullAbilityList = new ArrayList<>();
+
+    public static ArrayList<Ability> getFullAbilityList() {
+        fullAbilityList.add(poison);
+        fullAbilityList.add(heal);
+        fullAbilityList.add(regen);
+        fullAbilityList.add(bigSmack);
+        fullAbilityList.add(doubleTap);
+        fullAbilityList.add(throwSpear);
+        fullAbilityList.add(shieldUp);
+        fullAbilityList.add(buffOffense);
+        return fullAbilityList;
+    }
 
     public BiConsumer<CharacterModel, CharacterModel> action;
 

@@ -33,7 +33,7 @@ public class Perk {
     String description;
     public Consumer<Character> action;
     public VBox root;
-    ArrayList<Perk> unlocks;
+    public ArrayList<Perk> unlocks;
     Perk requirement;
 
     public Perk(String nam, String url,  String descr, Perk req, Consumer<Character> act){

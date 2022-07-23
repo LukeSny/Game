@@ -15,7 +15,9 @@
 package something;
 
 import javafx.stage.Stage;
+import something.disciplines.Ability;
 import something.disciplines.Discipline;
+import something.disciplines.Perk;
 import something.townScene.ItemCard;
 import something.worldScene.*;
 
@@ -242,17 +244,43 @@ public class Save {
 
     private static String writeChar(CharacterModel player){
         Character ch = player.character;
+        String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " " + ch.xp.getValue() + " ";
+        out += ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " " + ch.actionPoints;
+
         String helm = ch.helmet == null ? null : removeSpace(ch.helmet.name);
         String torso = ch.torso == null ? null : removeSpace(ch.torso.name);
         String weapon = ch.weapon == null ? null : removeSpace(ch.weapon.name);
         String legs = ch.legs == null ? null : removeSpace(ch.legs.name);
-        return ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " " + ch.xp.getValue() + " " + ch.maxXp + " " +
-                ch.strength + " " + ch.dodge + " " + ch.hit + " " + helm + " " + torso + " " + legs + " " + weapon;
+        out += helm + " " + torso + " " + legs + " " + weapon;
+        String perkLine = writeSkillTree(ch);
+        String abilityLine = writeAbilityList(ch);
+        System.out.println(out + "\n" + perkLine + "\n" + abilityLine);
+        return out;
+    }
+    private static String writeSkillTree(Character ch){
+        if (ch.discipline.perkTree == null) return "null";
+        return stepper(ch.discipline.perkTree.base);
+    }
+    private static String stepper(Perk start){
+        if (start.activated){
+            if (start.unlocks.isEmpty())
+                return  removeSpace(start.name) + " ";
+            String next = "";
+            for (Perk child : start.unlocks)
+                next += stepper(child);
+            return removeSpace(start.name) + " " + next;
+        }
+        return "";
+    }
+    private static String writeAbilityList(Character ch){
+        if (ch.discipline.abilities.isEmpty()) return null;
+        String out = "";
+        for (Ability ability : ch.discipline.abilities)
+            out += ability.name + " ";
+        return out;
     }
     private static String writeItem(ItemCard it){
-        String name = removeSpace(it.getItem().name);
-        System.out.println("writing item:" + name);
-        return name;
+        return removeSpace(it.getItem().name);
     }
     private static String writePanel(Panel pa){
         int numEnemies = pa.enemies.size(); int numPlaces = pa.places.size();
