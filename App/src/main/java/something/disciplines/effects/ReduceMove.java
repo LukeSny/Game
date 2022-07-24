@@ -17,14 +17,19 @@ package something.disciplines.effects;
 import something.CharacterModel;
 
 public class ReduceMove extends Effect{
-    int amount;
     boolean hasTripped;
     int orginalMove;
 
     public ReduceMove(String name, String image, CharacterModel mod, int time, int amt){
-        super(mod, time, name, image);
-        amount = amt;
-        description = "reduce move by " + amt;
+        super(mod, time, name, image, amt);
+        description = "reduce move by " + effect;
+        type = EffectType.reduceMove;
+    }
+
+    public ReduceMove(Effect ef){
+        super(ef.model, ef.timer, ef.name, ef.imageURL, ef.effect);
+        description = "reduce move by " + effect;
+        type = EffectType.reduceMove;
     }
 
     @Override
@@ -34,7 +39,7 @@ public class ReduceMove extends Effect{
         }
         else{
             orginalMove = model.moveDist();
-            model.setMoveDist(orginalMove - amount);
+            model.setMoveDist(orginalMove - effect);
             hasTripped = true;
         }
     }

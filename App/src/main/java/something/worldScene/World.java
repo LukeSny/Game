@@ -697,8 +697,8 @@ public class World {
      */
     public void moveBackToSaved(){
         for (PlayerModel model : party.party.getModels()){
-            for (int i = 0; i < Runnable.NUM_ROWS; i++) {
-                for (int j = 0; j < Runnable.NUM_COLS; j++){
+            for (int i = 0; i < Grid.ROWS; i++) {
+                for (int j = 0; j < Grid.COLS; j++){
                     if(party.party.getSavedSlots()[i][j] == null) continue;
                     if (model.getCharacter().name.equalsIgnoreCase(party.party.getSavedSlots()[i][j].getCharacter().name)){
                         model.setCoords(i, j);
@@ -715,8 +715,8 @@ public class World {
      * @param model model to be resized
      */
     public void sizeForBattle(CharacterModel model){
-        int tileWidth = width / Grid.GRID_COL;
-        int tileHeight = height / Grid.GRID_ROWS;
+        int tileWidth = width / Grid.COLS;
+        int tileHeight = height / Grid.ROWS;
         if (tileWidth > tileHeight){
             tileWidth = tileHeight;
         }

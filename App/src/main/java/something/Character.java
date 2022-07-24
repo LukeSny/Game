@@ -137,12 +137,15 @@ public class Character {
         skillPoint = 0;
     }
 
-    public Character(String name, Discipline dis, int hp, int maxHp, int xp, int maxXp, int str, int dodge, int hit, Armor helmet, Armor torso, Armor legs, Weapon weapon){
+    public Character(String name, Discipline dis, int hp, int maxHp, int xp, int maxXp, int str, int dodge, int hit,
+                     Armor helmet, Armor torso, Armor legs, Weapon weapon,
+                     int moveDist, int extraDef, int ap, int apRegen, int skillPoint, double damageMod){
+        System.out.println("given ap: " + ap);
         this.name = name;
         this.discipline = dis;
-        damageMod = discipline.damageMod;
-        moveDist = discipline.moveDist;
-        extraDef = 0;
+        this.damageMod = damageMod;
+        this.moveDist = moveDist;
+        this.extraDef = extraDef;
         this.hp = new SimpleIntegerProperty(hp);
         this.maxHp =maxHp;
         this.xp = new SimpleIntegerProperty(xp);
@@ -156,10 +159,10 @@ public class Character {
         this.weapon = weapon;
         this.image = new ImageView(discipline.imageURL);
 
-        maxAction = 10;
-        actionPoints = 5;
-        actionRegen = 5;
-        skillPoint = 0;
+        this.maxAction = MAX_ACTION_POINT;
+        this.actionPoints = ap;
+        this.actionRegen = apRegen;
+        this.skillPoint = skillPoint;
     }
 
     public int attack(){

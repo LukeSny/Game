@@ -100,6 +100,9 @@ public class Perk {
             action.accept(self);
         }
     }
+    public void saveActivate(){
+        activated = true;
+    }
     private ImageView getProperImage(){
         if (activated)
             return activeImage;

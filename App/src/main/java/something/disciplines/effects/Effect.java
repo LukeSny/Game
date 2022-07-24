@@ -16,19 +16,22 @@ package something.disciplines.effects;
 
 import something.CharacterModel;
 
-public abstract class Effect {
+public class Effect {
 
     public int timer;
     public CharacterModel model;
     public String imageURL;
     public String name;
     public String description;
+    public int effect;
+    public EffectType type;
 
-    public Effect(CharacterModel mod, int time, String name, String imageURL){
+    public Effect(CharacterModel mod, int time, String name, String imageURL, int effect){
         model = mod;
         timer = time;
         this.name = name;
         this.imageURL = imageURL;
+        this.effect = effect;
     }
 
     public void activate(){

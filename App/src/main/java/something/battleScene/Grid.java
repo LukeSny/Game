@@ -29,7 +29,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import something.*;
 import something.Character;
-import something.Runnable;
 import something.disciplines.Ability;
 import something.disciplines.effects.Effect;
 import something.townScene.ItemCard;
@@ -46,8 +45,8 @@ import java.util.ArrayList;
  */
 public class Grid {
     /*dimensions of the battleField*/
-    public static final int GRID_ROWS = 10;
-    public static final int GRID_COL = 15;
+    public static final int ROWS = 10;
+    public static final int COLS = 15;
     /*basically the true root, 90% of the battle will interact with this*/
     public AnchorPane gridView;
     /*exists so the endBattle popUp appears in the middle of the screen*/
@@ -107,8 +106,8 @@ public class Grid {
         world.primaryStage.getScene().setRoot(root);
 
         selectedModel = new SimpleObjectProperty<>();
-        emptyTiles = new Tile[GRID_ROWS][GRID_COL];
-        modelTiles = new CharacterModel[GRID_ROWS][GRID_COL];
+        emptyTiles = new Tile[ROWS][COLS];
+        modelTiles = new CharacterModel[ROWS][COLS];
 
         sidePanel = new VBox();
         gridView.getChildren().add(sidePanel);
@@ -174,8 +173,8 @@ public class Grid {
      * if the tiles x and y are occupied by a CharacterModel in the modelTiles[][], then dont add it to the scene
      */
     public void buildMappy(){
-        for (int j = 0; j < GRID_COL; j++) {
-            for (int i = 0; i < GRID_ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            for (int i = 0; i < ROWS; i++) {
                 Tile tile = new Tile(i, j, tileSize, tileSize);
                 tile.back.setFill(Color.BLACK);
                 tile.back.setId("empty");
@@ -188,7 +187,7 @@ public class Grid {
             }
         }
         System.out.println("empty grid");
-        emptyTiles[GRID_ROWS-1][GRID_COL-1].back.setFill(Color.RED);
+        emptyTiles[ROWS -1][COLS -1].back.setFill(Color.RED);
         emptyTiles[0][6].back.setFill(Color.PINK);
         emptyTiles[6][0].back.setFill(Color.ORANGE);
         printEmptyGrid();
@@ -202,21 +201,21 @@ public class Grid {
      * creates the tileSize and remainder that will be used to construct the rest of the screen
      */
     public void initModelGraph(){
-        int tileWidth = world.width / GRID_COL;
-        int tileHeight = world.height / GRID_ROWS;
+        int tileWidth = world.width / COLS;
+        int tileHeight = world.height / ROWS;
         System.out.println("width/tile: " + world.width + " | " + tileWidth);
         System.out.println("height/tile: " + world.height + " | " + tileHeight);
         remainder = 0;
         if (tileWidth > tileHeight){
-            remainder = (tileWidth - tileHeight) * GRID_COL;
+            remainder = (tileWidth - tileHeight) * COLS;
             //noinspection SuspiciousNameCombination
             tileWidth = tileHeight;
         }
         tileSize = tileWidth;
         System.out.println("tileSize: " + tileSize);
         System.out.println("remainder: " + remainder);
-        for (int i = 0 ; i < Runnable.NUM_ROWS; i++){
-            for (int j = 0; j < Runnable.NUM_COLS; j++) {
+        for (int i = 0; i < ROWS; i++){
+            for (int j = 0; j < COLS; j++) {
                 System.out.print(party.getSavedSlots()[i][j] + " | ");
                 PlayerModel current = party.getSavedSlots()[i][j];
                 if (current != null){
@@ -224,7 +223,6 @@ public class Grid {
                     gridView.getChildren().add(current.getRoot());
                     current.setCoords(i, j);
                     setInitialTranslate(current);
-                    current.getCharacter().actionPoints = 5;
                     updateSidePanel();
                 }
             }
@@ -280,8 +278,8 @@ public class Grid {
      * sets all the empty tiles to be black
      */
     public void removeHighlight(){
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 emptyTiles[i][j].back.setFill(Color.BLACK);
             }
         }
@@ -296,8 +294,8 @@ public class Grid {
         int actionCount = model.getCharacter().actionPoints;
         int movePerAction = model.getCharacter().moveDist;
         for (int count = actionCount; count > 0; count--) {
-            for (int i = 0; i < GRID_ROWS; i++) {
-                for (int j = 0; j < GRID_COL; j++) {
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
                     if (getDistance(model, emptyTiles[i][j]) <= (count * movePerAction)) {
                         //System.out.println("i, j, count, distance: " + i + " | " + j + " | " + count + " | " + getDistance(model, emptyTiles[i][j]));
                         Color color = Color.BLACK;
@@ -326,8 +324,8 @@ public class Grid {
         if(model == null) return;
         //TODO: add a check to see if they can use the ability
         removeHighlight();
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 if (getDistance(model, emptyTiles[i][j]) <= selectedAbility.abilityRange)
                     emptyTiles[i][j].back.setFill(Color.GREEN);
             }
@@ -344,8 +342,8 @@ public class Grid {
         if(model == null) return;
         if(!model.getCharacter().canAttack())return;
         removeHighlight();
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 if (inAttackRange(model, emptyTiles[i][j]))
                     emptyTiles[i][j].back.setFill(Color.RED);
             }
@@ -409,8 +407,8 @@ public class Grid {
         }
 
         //all bindings for empty tiles
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 Tile tile = emptyTiles[i][j];
                 tile.back.setOnMouseClicked(c-> {
                     if(!stillFighting) return;
@@ -618,12 +616,7 @@ public class Grid {
 
 
         Button exit = new Button("Exit");
-
-        back.setBackground(new Background(new BackgroundFill(Color.WHITE,
-                CornerRadii.EMPTY,
-                Insets.EMPTY)));
-        back.setMaxSize(Runnable.SCREEN_SIZE / 3, Runnable.SCREEN_SIZE / 3);
-        back.setAlignment(Pos.CENTER);
+        world.stylePopUp(back);
 
         back.getChildren().addAll(title, xpGain, itemTitle, itemReward);
         root.getChildren().add(back);
@@ -707,8 +700,8 @@ public class Grid {
      * prints the current state of the underlying emptyTiles
      */
     public void printEmptyGrid(){
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 System.out.print(emptyTiles[i][j].x + ":" + emptyTiles[i][j].y + " | ");
             }
             System.out.println();
@@ -719,8 +712,8 @@ public class Grid {
      * prints the current state of the underlying modelTiles
      */
     public void printModelGrid(){
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COL; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 if(modelTiles[i][j] != null )
                     System.out.print(modelTiles[i][j].getName() + " | ");
                 else

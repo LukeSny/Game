@@ -91,7 +91,7 @@ public class Ability {
     public static final Ability regen = new Ability("regen", 3,2, 2, false, "ability/HOT.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
-            other.addEffect(new HOT("regen", "ability/HOT.png", other, 3, self.getCharacter().strength/2));
+            other.addEffect(new HOT("Regen", "ability/HOT.png", other, 3, self.getCharacter().strength/2));
         }
     });
 
@@ -126,14 +126,14 @@ public class Ability {
     public static final Ability shieldUp = new Ability("Shield Up", 1, 2, 4, false, "ability/buffDefense.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
-            other.addEffect(new BuffDefense("buff defense", "ability/buffDefense.png", self, 3, self.getDefense()/2));
+            other.addEffect(new BuffDefense("Buff Defense", "ability/buffDefense.png", self, 3, self.getDefense()/2));
         }
     });
 
     public static final Ability buffOffense = new Ability("Rage", 1, 2, 4, false, "ability/buffOffense.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
-            self.addEffect(new BuffDamage("Buff Offense", "ability/buffOffense.png", self, 4, 1.5));
+            self.addEffect(new BuffDamage("Buff Offense", "ability/buffOffense.png", self, 4, 15));
         }
     });
 }

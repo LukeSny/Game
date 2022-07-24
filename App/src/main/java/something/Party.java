@@ -15,7 +15,7 @@
 package something;
 
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.image.ImageView;
+import something.battleScene.Grid;
 import something.townScene.ItemCard;
 
 import java.io.Serializable;
@@ -35,7 +35,7 @@ public class Party implements Serializable {
         gold = new SimpleIntegerProperty(100);
         items = new ArrayList<>();
         name = na;
-        savedSlots = new PlayerModel[Runnable.NUM_ROWS][Runnable.NUM_COLS];
+        savedSlots = new PlayerModel[Grid.ROWS][Grid.COLS];
         for ( PlayerModel model : models){
             savedSlots[model.getX()][model.getY()] = model;
         }
@@ -46,7 +46,7 @@ public class Party implements Serializable {
         gold = new SimpleIntegerProperty(100);
         items = it;
         name = na;
-        savedSlots = new PlayerModel[Runnable.NUM_ROWS][Runnable.NUM_COLS];
+        savedSlots = new PlayerModel[Grid.ROWS][Grid.COLS];
         for ( PlayerModel model : models){
             savedSlots[model.getX()][model.getY()] = model;
         }
@@ -99,19 +99,5 @@ public class Party implements Serializable {
 
     public PlayerModel[][] getSavedSlots() {
         return savedSlots;
-    }
-
-
-    public void printSavedSlots(){
-        for (int i = 0; i < Runnable.NUM_ROWS; i++) {
-            for (int j = 0; j < Runnable.NUM_COLS; j++) {
-                PlayerModel current = savedSlots[i][j];
-                if (current == null)
-                    System.out.print(" null |");
-                else
-                    System.out.print(" " + current.getName() + " |");
-            }
-            System.out.println();
-        }
     }
 }

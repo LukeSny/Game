@@ -157,7 +157,7 @@ public class EncounterMaker {
                             for (int i = 0; i < num; i++) {
                                 EnemyModel model = EncounterMaker.matchEnemy(line);
                                 model.setY(yCord);
-                                yCord = (yCord + 1) % Grid.GRID_ROWS;
+                                yCord = (yCord + 1) % Grid.ROWS;
                                 fighters.add(model);
                             }
                         }

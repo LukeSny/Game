@@ -17,15 +17,19 @@ package something.disciplines.effects;
 import something.CharacterModel;
 
 public class BuffDamage extends Effect{
-
-    double scalar;
+    /* effect should be treated as scalar / 100 because it has to be int to be saved*/
     boolean hasTripped;
     double originalDamage;
 
-    public BuffDamage(String name, String url, CharacterModel mod, int time, double multiple){
-        super(mod, time, name, url);
-        scalar = multiple;
-        description = "damage multiplied by " + multiple;
+    public BuffDamage(String name, String url, CharacterModel mod, int time, int multiple){
+        super(mod, time, name, url, multiple);
+        description = "damage multiplied by " + (double) effect / 10;
+        type = EffectType.buffDamage;
+    }
+    public BuffDamage(Effect ef){
+        super(ef.model, ef.timer, ef.name, ef.imageURL, ef.effect);
+        description = "damage multiplied by " + (double) effect / 10;
+        type = EffectType.buffDamage;
     }
 
     @Override
@@ -35,6 +39,7 @@ public class BuffDamage extends Effect{
         }
         else{
             originalDamage = model.damageMod();
+            double scalar = (double) effect / 10;
             model.setDamageMod(originalDamage * scalar);
             hasTripped = true;
         }

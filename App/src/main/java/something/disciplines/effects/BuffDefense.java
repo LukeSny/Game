@@ -17,16 +17,20 @@ package something.disciplines.effects;
 import something.CharacterModel;
 
 public class BuffDefense extends Effect{
-    int addition;
     boolean hasTripped;
     double originalDefense;
 
     public BuffDefense(String name, String url, CharacterModel mod, int time, int adder){
-        super(mod, time, name, url);
-        addition = adder;
-        if (addition == 0)
-            addition = 5;
-        description = "buff defense by " + addition;
+        super(mod, time, name, url, adder);
+        if (effect == 0)
+            effect = 5;
+        description = "buff defense by " + effect;
+        type = EffectType.buffDefense;
+    }
+    public BuffDefense(Effect ef){
+        super(ef.model, ef.timer, ef.name, ef.imageURL, ef.effect);
+        description = "buff defense by " + effect;
+        type = EffectType.buffDefense;
     }
 
     @Override
@@ -36,13 +40,13 @@ public class BuffDefense extends Effect{
         }
         else{
             originalDefense = model.getCharacter().extraDef;
-            model.getCharacter().extraDef += addition;
+            model.getCharacter().extraDef += effect;
             hasTripped = true;
         }
     }
 
     public void remove(){
         model.getEffects().remove(this);
-        model.getCharacter().extraDef -= addition;
+        model.getCharacter().extraDef -= effect;
     }
 }

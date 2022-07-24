@@ -14,24 +14,24 @@
 
 package something;
 
-import something.townScene.LevelUpScene;
+import something.battleScene.Grid;
 
 /**
  * model of specifically players
  * extra data are if the model is currently allowed to move or attack
  */
 public class PlayerModel extends CharacterModel{
-    public static int nextXOpen = 0;
+    public static int nextYOpen = 0;
     public double ATWeight = 0.0;
     public PlayerModel(Character character, int x, int y){
         super(character, x, y);
     }
     public PlayerModel(){
-        super(nextXOpen % Runnable.NUM_COLS, 0);
+        super(nextYOpen % Grid.COLS, 0);
         //canAttack = true;
-        int y = nextXOpen % Runnable.NUM_COLS;
+        int y = nextYOpen % Grid.COLS;
         int x = 0;
-        if (nextXOpen > Runnable.NUM_COLS)
+        if (nextYOpen > Grid.COLS)
             x =1;
         this.setX(x);
         this.setY(y);

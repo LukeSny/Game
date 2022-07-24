@@ -17,16 +17,21 @@ package something.disciplines.effects;
 import something.CharacterModel;
 
 public class HOT extends Effect {
-    int healAmt;
 
     public HOT(String name, String image, CharacterModel mod, int time, int heal){
-        super(mod, time, name, image);
-        healAmt = heal;
-        description = "heal " + healAmt + " per turn";
+        super(mod, time, name, image, heal);
+        description = "heal " + effect + " per turn";
+        type = EffectType.HOT;
+    }
+
+    public HOT(Effect ef){
+        super(ef.model, ef.timer, ef.name, ef.imageURL, ef.effect);
+        description = "heal " + effect + " per turn";
+        type = EffectType.HOT;
     }
 
     public void activate(){
-        model.heal(healAmt);
+        model.heal(effect);
         checkTimer();
     }
 

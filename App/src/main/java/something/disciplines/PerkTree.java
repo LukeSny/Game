@@ -116,46 +116,17 @@ public class PerkTree extends Application {
 
     public static void main(String[] args) {
 
+        int effect = 75;
+        double scalar = (double) effect / 100;
+        System.out.println(scalar);
+
+
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        Perk one = new Perk("1");
-        Perk two = new Perk("2");
-        Perk three = new Perk("3");
-        Perk four = new Perk("4");
-        Perk five = new Perk("5");
-        Perk six = new Perk("6");
-        Perk seven = new Perk("7");
-        Perk eight = new Perk("8");
-        Perk nine = new Perk("9");
-        Perk ten = new Perk("10");
 
-        one.setUnlock(two); one.setUnlock(three);
-        two.setUnlock(four); two.setUnlock(nine); two.setUnlock(ten);
-        three.setUnlock(five); three.setUnlock(six);
-        five.setUnlock(seven);
-        five.setUnlock(eight);
-        //six.setUnlock(eight);
-        System.out.println("about to make tree");
-        PerkTree tree = new PerkTree(one);
-        tree.constructView(500, 500);
-
-        System.out.println("two's unlocks");
-        two.unlocks.forEach(c -> System.out.println(c.name));
-        Scene scene = new Scene(tree.root);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("PoopTown");
-
-        traverseTree(tree.base, new Consumer<Perk>() {
-            @Override
-            public void accept(Perk perk) {
-                System.out.println(perk.name);
-            }
-        });
-
-        primaryStage.show();
     }
 
 }

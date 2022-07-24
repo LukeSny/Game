@@ -39,7 +39,6 @@ public class TownHub {
         buildingHolder = new TilePane();
 
         shopScene = new ShopScene(this, world);
-        levelUpScene = new LevelUpScene(this, world);
         craftScene = new CraftScene(this, world);
         recruitScene = new RecruitScene(this, world);
 
@@ -90,7 +89,7 @@ public class TownHub {
         world.primaryStage.getScene().setRoot(shopScene.root);
     }
     private void levelTransition(){
-        levelUpScene.updateScene();
+        levelUpScene = new LevelUpScene(this, world);
         world.primaryStage.getScene().setRoot(levelUpScene.root);
     }
     private void craftTransition(){

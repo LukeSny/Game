@@ -25,7 +25,7 @@ import something.worldScene.World;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static something.PlayerModel.nextXOpen;
+import static something.PlayerModel.nextYOpen;
 
 public class RecruitScene extends TemplateScene{
 
@@ -78,15 +78,15 @@ public class RecruitScene extends TemplateScene{
                     party.addModel(card.model);
                     recruits.remove(card);
 
-                    int y = nextXOpen % Runnable.NUM_COLS;
+                    int y = nextYOpen % Runnable.NUM_COLS;
                     int x = 0;
-                    if (nextXOpen > Runnable.NUM_COLS)
+                    if (nextYOpen > Runnable.NUM_COLS)
                         x =1;
                     card.model.setX(x);
                     card.model.setY(y);
                     party.getSavedSlots()[x][y] = card.model;
                     System.out.println("x: " + x + " |y: " + y);
-                    nextXOpen++;
+                    nextYOpen++;
                     placeRecruits();
                 }
             });

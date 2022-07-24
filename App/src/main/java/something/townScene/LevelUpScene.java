@@ -311,7 +311,6 @@ public class LevelUpScene extends TemplateScene{
                 else{
                     PlayerModel mod = movablePlayer;
                     System.out.println("before move | clicked: " + mod.printCoords() + " | " + model.printCoords());
-                    party.printSavedSlots();
                     PlayerModel temp = model.cloneObj();
                     party.getSavedSlots()[mod.getX()][mod.getY()] = model;
                     party.getSavedSlots()[model.getX()][model.getY()] = movablePlayer;
@@ -320,7 +319,6 @@ public class LevelUpScene extends TemplateScene{
                     mod.setCoords(temp.getX(), temp.getY());
 
                     System.out.println("after move | clicked: " + mod.printCoords() + " | " + model.printCoords());
-                    party.printSavedSlots();
                     movablePlayer = null;
                     placeLayout();
                 }
@@ -365,6 +363,7 @@ public class LevelUpScene extends TemplateScene{
      */
     private void placeLayout(){
         playerLayout.getChildren().clear();
+        townHub.world.moveBackToSaved();
         for (int i = 0; i < Runnable.NUM_ROWS; i ++){
             for (int j = 0; j < Runnable.NUM_COLS; j++){
                 gridAdd(tiles[i][j]);

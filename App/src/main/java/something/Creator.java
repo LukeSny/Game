@@ -146,21 +146,21 @@ public class Creator {
         ArrayList<EnemyModel> list = new ArrayList<>();
         if (faction == 0){
             for (int i = 0; i < numEnemy; i++) {
-                EnemyModel en = new EnemyModel(new Character("goblin", new Goblin()), Grid.GRID_ROWS - 2, i);
+                EnemyModel en = new EnemyModel(new Character("goblin", new Goblin()), Grid.ROWS - 2, i);
                 list.add(en);
             }
             model = new EnemyWorldModel(list, "goblin", "models/goblin.png",numEnemy);
         }
         else if (faction == 1){
             for (int i = 0; i < numEnemy; i++) {
-                EnemyModel en = new EnemyModel(new Character("bandit", new Bandit()), Grid.GRID_ROWS - 2, i);
+                EnemyModel en = new EnemyModel(new Character("bandit", new Bandit()), Grid.ROWS - 2, i);
                 list.add(en);
             }
             model = new EnemyWorldModel(list, "bandit", "models/bandit.png",numEnemy + 2);
         }
         else if (faction == 2){
             for (int i = 0; i < numEnemy; i++) {
-                EnemyModel en = new EnemyModel(new Character("orc", new Orc()), Grid.GRID_ROWS - 2, i);
+                EnemyModel en = new EnemyModel(new Character("orc", new Orc()), Grid.ROWS - 2, i);
                 list.add(en);
             }
             model = new EnemyWorldModel(list, "orcs", "models/orc.jpg",numEnemy + 3);
@@ -170,14 +170,14 @@ public class Creator {
 
     public static ArrayList<EnemyModel> listAllEnemies() {
         ArrayList<EnemyModel> list = new ArrayList<>();
-        EnemyModel en1 = new EnemyModel(new Character("goblin", new Goblin()), Grid.GRID_COL - 2, xCounter % Grid.GRID_ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.GRID_ROWS);
+        EnemyModel en1 = new EnemyModel(new Character("goblin", new Goblin()), Grid.COLS - 2, xCounter % Grid.ROWS);
+        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
         list.add(en1); xCounter++;
-        EnemyModel en2 = new EnemyModel(new Character("bandit", new Bandit()), Grid.GRID_COL - 2, xCounter % Grid.GRID_ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.GRID_ROWS);
+        EnemyModel en2 = new EnemyModel(new Character("bandit", new Bandit()), Grid.COLS - 2, xCounter % Grid.ROWS);
+        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
         list.add(en2); xCounter++;
-        EnemyModel en3 = new EnemyModel(new Character("orc", new Orc()), Grid.GRID_COL - 2, xCounter % Grid.GRID_ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.GRID_ROWS);
+        EnemyModel en3 = new EnemyModel(new Character("orc", new Orc()), Grid.COLS - 2, xCounter % Grid.ROWS);
+        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
         list.add(en3); xCounter++;
         return list;
     }

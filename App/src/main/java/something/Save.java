@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 import something.disciplines.Ability;
 import something.disciplines.Discipline;
 import something.disciplines.Perk;
+import something.disciplines.PerkTree;
+import something.disciplines.effects.*;
 import something.townScene.ItemCard;
 import something.worldScene.*;
 
@@ -25,11 +27,14 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class Save {
 
     private static final File saveFile = new File(Paths.get("App", "src", "main",
             "resources").toFile().getAbsolutePath() + "\\savedGame.txt");
+
+    private static final ArrayList<Ability> abilityList = Ability.getFullAbilityList();
 
     public static void writeSave(World world){
 
@@ -192,7 +197,7 @@ public class Save {
         ArrayList<EnemyModel> models = new ArrayList<>();
         ArrayList<ItemCard> items = new ArrayList<>();
         for (int j = 0; j < numEnemies; j++) {
-            models.add(readEnemy(scnr.nextLine()));
+            models.add(readEnemy(scnr));
         }
         for (int j = 0; j < numItems; j++) {
             items.add(readItem(scnr.nextLine()));
@@ -227,7 +232,7 @@ public class Save {
         ArrayList<ItemCard> items = new ArrayList<>();
 
         for (int i = 0; i < numModels; i++){
-            players.add(readPlayer(scnr.nextLine()));
+            players.add(readPlayer(scnr));
         }
         for (int i = 0; i < numItems; i++) {
             String next = scnr.nextLine();
@@ -244,9 +249,9 @@ public class Save {
 
     private static String writeChar(CharacterModel player){
         Character ch = player.character;
-        String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " " + ch.xp.getValue() + " ";
-        out += ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " " + ch.actionPoints;
-
+        String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " ";
+        out += ch.xp.getValue() + " " + ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " ";
+        out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " ";
         String helm = ch.helmet == null ? null : removeSpace(ch.helmet.name);
         String torso = ch.torso == null ? null : removeSpace(ch.torso.name);
         String weapon = ch.weapon == null ? null : removeSpace(ch.weapon.name);
@@ -254,12 +259,19 @@ public class Save {
         out += helm + " " + torso + " " + legs + " " + weapon;
         String perkLine = writeSkillTree(ch);
         String abilityLine = writeAbilityList(ch);
-        System.out.println(out + "\n" + perkLine + "\n" + abilityLine);
+        String effectLine = writeStatusEffects(player);
+        out += "\n" + perkLine + "\n" + abilityLine + "\n" + effectLine;
+        System.out.println(out);
         return out;
     }
     private static String writeSkillTree(Character ch){
-        if (ch.discipline.perkTree == null) return "null";
-        return stepper(ch.discipline.perkTree.base);
+        if (ch.discipline.perkTree == null || !ch.discipline.perkTree.base.activated) {
+            System.out.println("found an empty tree for " + ch.name);
+            return "null";
+        }
+        String stepper = stepper(ch.discipline.perkTree.base);
+        System.out.println("stepper: " + stepper);
+        return stepper;
     }
     private static String stepper(Perk start){
         if (start.activated){
@@ -273,11 +285,24 @@ public class Save {
         return "";
     }
     private static String writeAbilityList(Character ch){
-        if (ch.discipline.abilities.isEmpty()) return null;
+        if (ch.discipline.abilities.isEmpty()) {
+            System.out.println("no abilities found");
+            return "null";
+        }
         String out = "";
         for (Ability ability : ch.discipline.abilities)
-            out += ability.name + " ";
+            out += removeSpace(ability.name) + " ";
+        System.out.println("abilties found:" + ch.name + " | " + out);
         return out;
+    }
+    private static String writeStatusEffects(CharacterModel model){
+        if (model.effects.isEmpty()) return null;
+        StringBuilder out = new StringBuilder();
+        for (Effect ef : model.effects){
+            String current = swapSpaceOut(ef.name) + " " + ef.imageURL + " " + ef.timer + " " + ef.effect + " " + ef.type.name;
+            out.append(current).append(" ");
+        }
+        return out.toString();
     }
     private static String writeItem(ItemCard it){
         return removeSpace(it.getItem().name);
@@ -379,43 +404,164 @@ public class Save {
                 return dis;
         return null;
     }
-
-
-    private static PlayerModel readPlayer(String line){
-        int x, y, hp, maxHp, xp, maxXp, str, dodge, hit;
-        Armor helm, torso, leg;
-        Weapon wpn;
-        String name;
-        Discipline discipline;
+    private static Ability searchAbility(String name){
+        for (Ability ab : abilityList)
+            if (name.equals(removeSpace(ab.name)))
+                return ab;
+        return null;
+    }
+    private static boolean notPresent(Character ch, String ability){
+        for (Ability ab : ch.discipline.abilities)
+            if (ability.equals(removeSpace(ab.name)))
+                return false;
+        return true;
+    }
+    private static void constructTree(String line, Discipline dis){
         Scanner scnr = new Scanner(line);
-        name = scnr.next();
-        discipline = searchDiscipline(scnr.next());
-        x = scnr.nextInt(); y = scnr.nextInt(); hp = scnr.nextInt(); maxHp = scnr.nextInt(); xp = scnr.nextInt();
-        maxXp = scnr.nextInt(); str = scnr.nextInt();
-        dodge = scnr.nextInt(); hit = scnr.nextInt();
-        helm = searchArmor(scnr.next()); torso = searchArmor(scnr.next()); leg = searchArmor(scnr.next());
-        wpn = searchWpn(scnr.next());
-        Character ch = new Character(name, discipline, hp, maxHp, xp, maxXp, str, dodge, hit, helm, torso, leg, wpn);
-        return new PlayerModel(ch, x, y);
+        while (scnr.hasNext()){
+            String name = scnr.next();
+            PerkTree.traverseTree(dis.perkTree.base, new Consumer<Perk>() {
+                @Override
+                public void accept(Perk perk) {
+                    if (perk.name.equals(name))
+                        perk.saveActivate();
+                }
+            });
+        }
     }
 
-    private static EnemyModel readEnemy(String line){
-        int x, y, hp, maxHp, xp, maxXp, str, dodge, hit;
+
+    private static PlayerModel readPlayer(Scanner overScan){
+        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y;
+        double damageMod;
         Armor helm, torso, leg;
         Weapon wpn;
         String name;
         Discipline discipline;
+        String line = overScan.nextLine();
+        System.out.println("ch line");
+        System.out.println(line);
+        System.out.println("end ch line");
+        /* read out a character in here*/
         Scanner scnr = new Scanner(line);
-        System.out.println("reading enemy out of this line: " + line);
         name = scnr.next();
         discipline = searchDiscipline(scnr.next());
         x = scnr.nextInt(); y = scnr.nextInt(); hp = scnr.nextInt(); maxHp = scnr.nextInt(); xp = scnr.nextInt();
         maxXp = scnr.nextInt(); str = scnr.nextInt();
         dodge = scnr.nextInt(); hit = scnr.nextInt();
+        skillPoint = scnr.nextInt(); actionPoints = scnr.nextInt(); damageMod = scnr.nextDouble(); moveDist = scnr.nextInt();
+        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt();
         helm = searchArmor(scnr.next()); torso = searchArmor(scnr.next()); leg = searchArmor(scnr.next());
         wpn = searchWpn(scnr.next());
-        Character ch = new Character(name, discipline, hp, maxHp, xp, maxXp, str, dodge, hit, helm, torso, leg, wpn);
-        return new EnemyModel(ch, x, y);
+        System.out.println("read in action: " + actionPoints);
+        Character ch = new Character(name, discipline, hp, maxHp, xp, maxXp, str, dodge, hit, helm, torso, leg, wpn,
+                moveDist, extraDef, actionPoints, actionRegen, skillPoint, damageMod);
+
+        /* read out skill line */
+        String skillLine = overScan.nextLine();
+        System.out.println("skill line");
+        System.out.println(skillLine);
+        System.out.println("end skill line");
+        if (!skillLine.equals("null"))
+            constructTree(skillLine, ch.discipline);
+        /* read out ability line */
+        String abilityLine = overScan.nextLine();
+        System.out.println("ab line");
+        System.out.println(abilityLine);
+        System.out.println("end ab line");
+        if (!abilityLine.equals("null")) {
+            scnr = new Scanner(abilityLine);
+            while (scnr.hasNext()) {
+                String ability = scnr.next();
+                if (notPresent(ch, ability))
+                    ch.discipline.abilities.add(searchAbility(ability));
+            }
+        }
+        PlayerModel model = new PlayerModel(ch, x, y);
+        String effectLine = overScan.nextLine();
+        System.out.println("effect line");
+        System.out.println(effectLine);
+        System.out.println("end effect line");
+        if (!effectLine.equals("null")){
+            System.out.println("reading an effect");
+            scnr = new Scanner(effectLine);
+            while (scnr.hasNext()){
+                String effName = scnr.next();
+                String url = scnr.next();
+                int timer = scnr.nextInt();
+                int effect = scnr.nextInt();
+                String type = scnr.next();
+                Effect current = new Effect(model, timer, effName, url, effect);
+                addEffect(model, current, type);
+            }
+        }
+        return model;
+    }
+
+    private static EnemyModel readEnemy(Scanner overScan){
+        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y;
+        double damageMod;
+        Armor helm, torso, leg;
+        Weapon wpn;
+        String name;
+        Discipline discipline;
+        String line = overScan.nextLine();
+        System.out.println("ch line");
+        System.out.println(line);
+        System.out.println("end ch line");
+        /* read out a character in here*/
+        Scanner scnr = new Scanner(line);
+        name = scnr.next();
+        discipline = searchDiscipline(scnr.next());
+        x = scnr.nextInt(); y = scnr.nextInt(); hp = scnr.nextInt(); maxHp = scnr.nextInt(); xp = scnr.nextInt();
+        maxXp = scnr.nextInt(); str = scnr.nextInt();
+        dodge = scnr.nextInt(); hit = scnr.nextInt();
+        skillPoint = scnr.nextInt(); actionPoints = scnr.nextInt(); damageMod = scnr.nextDouble(); moveDist = scnr.nextInt();
+        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt();
+        helm = searchArmor(scnr.next()); torso = searchArmor(scnr.next()); leg = searchArmor(scnr.next());
+        wpn = searchWpn(scnr.next());
+        Character ch = new Character(name, discipline, hp, maxHp, xp, maxXp, str, dodge, hit, helm, torso, leg, wpn,
+                moveDist, extraDef, actionPoints, actionRegen, skillPoint, damageMod);
+
+        /* read out skill line */
+        String skillLine = overScan.nextLine();
+        System.out.println("skill line");
+        System.out.println(skillLine);
+        System.out.println("end skill line");
+        if (!skillLine.equals("null"))
+            constructTree(skillLine, ch.discipline);
+        /* read out ability line */
+        String abilityLine = overScan.nextLine();
+        System.out.println("ab line");
+        System.out.println(abilityLine);
+        System.out.println("end ab line");
+        if (!abilityLine.equals("null")) {
+            scnr = new Scanner(abilityLine);
+            while (scnr.hasNext()) {
+                String ability = scnr.next();
+                if (notPresent(ch, ability))
+                    ch.discipline.abilities.add(searchAbility(ability));
+            }
+        }
+        EnemyModel model = new EnemyModel(ch, x, y);
+        String effectLine = overScan.nextLine();
+        System.out.println("effect line");
+        System.out.println(effectLine);
+        System.out.println("end effect line");
+        if (!effectLine.equals("null")){
+            System.out.println("reading an effect");
+            scnr = new Scanner(effectLine);
+            while (scnr.hasNext()){
+                String effName = scnr.next();
+                String url = scnr.next();
+                int timer = scnr.nextInt();
+                int effect = scnr.nextInt();
+                String type = scnr.next();
+                Effect current = new Effect(model, timer, effName, url, effect);
+                addEffect(model, current, type);
+            }
+        }
+        return model;
     }
 
     private static ItemCard readItem(String line){
@@ -430,7 +576,24 @@ public class Save {
         return thing.replaceAll(" ", "");
     }
 
+    private static String swapSpaceOut(String thing ) { return thing.replaceAll(" ", "*");}
+    private static String swapSpaceIn(String thing ) { return thing.replaceAll("\\*", " ");}
 
+    private static void addEffect(CharacterModel model, Effect effect, String type){
+        effect.name = swapSpaceIn(effect.name);
+        if (type.equals(EffectType.buffDamage.name))
+            model.addEffect(new BuffDamage(effect));
+        else if (type.equals(EffectType.buffDefense.name))
+            model.addEffect(new BuffDefense(effect));
+        else if (type.equals((EffectType.buffRange.name)));
+            //model.addEffect(new BuffRana);
+        else if (type.equals(EffectType.DOT.name))
+            model.addEffect(new DOT(effect));
+        else if (type.equals(EffectType.HOT.name))
+            model.addEffect(new HOT(effect));
+        else if (type.equals(EffectType.reduceMove.name))
+            model.addEffect(new ReduceMove(effect));
+    }
 }
 
 class StupidHolder{
