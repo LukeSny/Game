@@ -248,10 +248,15 @@ public class Save {
     }
 
     private static String writeChar(CharacterModel player){
+        int savedX =0 , savedY = 0;
+        if (player instanceof PlayerModel){
+            savedX = ((PlayerModel) player).savedX;
+            savedY = ((PlayerModel) player).savedY;
+        }
         Character ch = player.character;
         String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " ";
         out += ch.xp.getValue() + " " + ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " ";
-        out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " ";
+        out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " " + savedX + " " + savedY;
         String helm = ch.helmet == null ? null : removeSpace(ch.helmet.name);
         String torso = ch.torso == null ? null : removeSpace(ch.torso.name);
         String weapon = ch.weapon == null ? null : removeSpace(ch.weapon.name);
@@ -432,7 +437,7 @@ public class Save {
 
 
     private static PlayerModel readPlayer(Scanner overScan){
-        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y;
+        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y, savedX, savedY;
         double damageMod;
         Armor helm, torso, leg;
         Weapon wpn;
@@ -450,7 +455,7 @@ public class Save {
         maxXp = scnr.nextInt(); str = scnr.nextInt();
         dodge = scnr.nextInt(); hit = scnr.nextInt();
         skillPoint = scnr.nextInt(); actionPoints = scnr.nextInt(); damageMod = scnr.nextDouble(); moveDist = scnr.nextInt();
-        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt();
+        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt(); savedX = scnr.nextInt(); savedY = scnr.nextInt();
         helm = searchArmor(scnr.next()); torso = searchArmor(scnr.next()); leg = searchArmor(scnr.next());
         wpn = searchWpn(scnr.next());
         System.out.println("read in action: " + actionPoints);
@@ -478,6 +483,7 @@ public class Save {
             }
         }
         PlayerModel model = new PlayerModel(ch, x, y);
+        model.setSavedCoords(savedX, savedY);
         String effectLine = overScan.nextLine();
         System.out.println("effect line");
         System.out.println(effectLine);
@@ -499,7 +505,7 @@ public class Save {
     }
 
     private static EnemyModel readEnemy(Scanner overScan){
-        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y;
+        int maxHp, maxXp, dodge, hit, str, moveDist, extraDef, actionPoints, actionRegen, skillPoint, hp, xp, x, y, savedX, savedY;
         double damageMod;
         Armor helm, torso, leg;
         Weapon wpn;
@@ -517,7 +523,7 @@ public class Save {
         maxXp = scnr.nextInt(); str = scnr.nextInt();
         dodge = scnr.nextInt(); hit = scnr.nextInt();
         skillPoint = scnr.nextInt(); actionPoints = scnr.nextInt(); damageMod = scnr.nextDouble(); moveDist = scnr.nextInt();
-        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt();
+        extraDef = scnr.nextInt(); actionRegen = scnr.nextInt(); savedX = scnr.nextInt(); savedY = scnr.nextInt();
         helm = searchArmor(scnr.next()); torso = searchArmor(scnr.next()); leg = searchArmor(scnr.next());
         wpn = searchWpn(scnr.next());
         Character ch = new Character(name, discipline, hp, maxHp, xp, maxXp, str, dodge, hit, helm, torso, leg, wpn,

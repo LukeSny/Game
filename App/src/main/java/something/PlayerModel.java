@@ -23,6 +23,8 @@ import something.battleScene.Grid;
 public class PlayerModel extends CharacterModel{
     public static int nextYOpen = 0;
     public double ATWeight = 0.0;
+    public int savedX;
+    public int savedY;
     public PlayerModel(Character character, int x, int y){
         super(character, x, y);
     }
@@ -40,6 +42,11 @@ public class PlayerModel extends CharacterModel{
     public void setCoords(int x, int y){
         this.x = x;
         this.y = y;
+    }
+
+    public void setSavedCoords(int x, int y){
+        savedX = x;
+        savedY = y;
     }
 
     public PlayerModel cloneObj(){

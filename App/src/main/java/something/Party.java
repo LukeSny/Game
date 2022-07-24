@@ -27,8 +27,7 @@ public class Party implements Serializable {
     ArrayList<ItemCard> items;
     SimpleIntegerProperty gold;
     String name;
-    PlayerModel savedSlots[][];
-    String imageUrl;
+    PlayerModel[][] savedSlots;
 
     public Party(ArrayList<PlayerModel> mod, String na){
         models = mod;
