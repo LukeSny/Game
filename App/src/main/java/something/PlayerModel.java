@@ -48,6 +48,10 @@ public class PlayerModel extends CharacterModel{
         savedX = x;
         savedY = y;
     }
+    public void moveToSaved(){
+        x = savedX;
+        y = savedY;
+    }
 
     public PlayerModel cloneObj(){
         PlayerModel out = new PlayerModel(this.character.cloneObj(), this.x, this.y);

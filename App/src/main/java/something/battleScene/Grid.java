@@ -214,19 +214,15 @@ public class Grid {
         tileSize = tileWidth;
         System.out.println("tileSize: " + tileSize);
         System.out.println("remainder: " + remainder);
-        for (int i = 0; i < ROWS; i++){
-            for (int j = 0; j < COLS; j++) {
-                System.out.print(party.getSavedSlots()[i][j] + " | ");
-                PlayerModel current = party.getSavedSlots()[i][j];
-                if (current != null){
-                    modelTiles[i][j] = current;
-                    gridView.getChildren().add(current.getRoot());
-                    current.setCoords(i, j);
-                    setInitialTranslate(current);
-                    updateSidePanel();
-                }
+        for (PlayerModel model : party.getModels()){
+            setInitialTranslate(model);
+            gridView.getChildren().add(model.getRoot());
+            if (!world.justLoaded) {
+                model.moveToSaved();
+                model.getCharacter().actionPoints = 5;
             }
-            System.out.println();
+            modelTiles[model.getX()][model.getY()] = model;
+            updateSidePanel();
         }
         for (EnemyModel enemy : enemies.getEnemies()){
             modelTiles[enemy.getX()][enemy.getY()] = enemy;

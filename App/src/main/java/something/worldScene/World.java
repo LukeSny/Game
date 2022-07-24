@@ -97,6 +97,9 @@ public class World {
     public int width;
     public int height;
 
+    /* used to determine if we need to give the player back more ap when loading into a battle */
+    public boolean justLoaded;
+
     /**
      *
      * @param party player's party needs to be created before the world
@@ -123,6 +126,8 @@ public class World {
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
         spaceMoved = height * .015;
+
+        justLoaded = true;
 
         String music = "adventureMusic.mp3";
 //        Media sound = new Media(Runnable.class.getResource("adventureMusic.mp3").toExternalForm());
@@ -178,6 +183,8 @@ public class World {
                 if (clockCycles % 50 == 25)
                     generateEnemy();
                 clockCycles++;
+                if (clockCycles > 10)
+                    justLoaded = false;
 
             }
 
@@ -695,20 +702,20 @@ public class World {
     /**
      * moves the PlayerModels in the party back to the saved slots for the next combat
      */
-    public void moveBackToSaved(){
-        for (PlayerModel model : party.party.getModels()){
-            for (int i = 0; i < Runnable.NUM_ROWS; i++) {
-                for (int j = 0; j < Runnable.NUM_COLS; j++){
-                    if(party.party.getSavedSlots()[i][j] == null) continue;
-                    if (model.getCharacter().name.equalsIgnoreCase(party.party.getSavedSlots()[i][j].getCharacter().name)){
-                        model.setCoords(i, j);
-                        model.getRoot().setTranslateX(0);
-                        model.getRoot().setTranslateY(0);
-                    }
-                }
-            }
-        }
-    }
+//    public void moveBackToSaved(){
+//        for (PlayerModel model : party.party.getModels()){
+//            for (int i = 0; i < Runnable.NUM_ROWS; i++) {
+//                for (int j = 0; j < Runnable.NUM_COLS; j++){
+//                    if(party.party.getSavedSlots()[i][j] == null) continue;
+//                    if (model.getCharacter().name.equalsIgnoreCase(party.party.getSavedSlots()[i][j].getCharacter().name)){
+//                        model.setCoords(i, j);
+//                        model.getRoot().setTranslateX(0);
+//                        model.getRoot().setTranslateY(0);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     /**
      * correctly size the model to fit in the grid and battleScene
@@ -729,7 +736,7 @@ public class World {
      */
     public void enterWorld(){
         stillMoving = true;
-        moveBackToSaved();
+        party.party.moveToSavedSlots();
         direction = Direction.NONE;
         setAllUp();
         primaryStage.getScene().setRoot(currentPanel.root);

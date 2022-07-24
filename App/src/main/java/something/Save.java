@@ -256,7 +256,7 @@ public class Save {
         Character ch = player.character;
         String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " ";
         out += ch.xp.getValue() + " " + ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " ";
-        out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " " + savedX + " " + savedY;
+        out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " " + savedX + " " + savedY + " ";
         String helm = ch.helmet == null ? null : removeSpace(ch.helmet.name);
         String torso = ch.torso == null ? null : removeSpace(ch.torso.name);
         String weapon = ch.weapon == null ? null : removeSpace(ch.weapon.name);

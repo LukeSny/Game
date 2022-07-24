@@ -27,17 +27,12 @@ public class Party implements Serializable {
     ArrayList<ItemCard> items;
     SimpleIntegerProperty gold;
     String name;
-    PlayerModel[][] savedSlots;
 
     public Party(ArrayList<PlayerModel> mod, String na){
         models = mod;
         gold = new SimpleIntegerProperty(100);
         items = new ArrayList<>();
         name = na;
-        savedSlots = new PlayerModel[Grid.ROWS][Grid.COLS];
-        for ( PlayerModel model : models){
-            savedSlots[model.getX()][model.getY()] = model;
-        }
     }
 
     public Party(ArrayList<PlayerModel> mod, ArrayList<ItemCard> it, String na){
@@ -45,10 +40,6 @@ public class Party implements Serializable {
         gold = new SimpleIntegerProperty(100);
         items = it;
         name = na;
-        savedSlots = new PlayerModel[Grid.ROWS][Grid.COLS];
-        for ( PlayerModel model : models){
-            savedSlots[model.getX()][model.getY()] = model;
-        }
     }
 
     public ArrayList<PlayerModel> getModels() {
@@ -96,7 +87,10 @@ public class Party implements Serializable {
         models.add(model);
     }
 
-    public PlayerModel[][] getSavedSlots() {
-        return savedSlots;
+    public void moveToSavedSlots() {
+        for (PlayerModel model : models) {
+            model.moveToSaved();
+        }
     }
+
 }

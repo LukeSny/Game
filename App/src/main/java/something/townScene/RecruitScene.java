@@ -84,7 +84,7 @@ public class RecruitScene extends TemplateScene{
                         x =1;
                     card.model.setX(x);
                     card.model.setY(y);
-                    party.getSavedSlots()[x][y] = card.model;
+                    card.model.setSavedCoords(x, y);
                     System.out.println("x: " + x + " |y: " + y);
                     nextYOpen++;
                     placeRecruits();

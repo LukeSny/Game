@@ -112,9 +112,18 @@ public class LevelUpScene extends TemplateScene{
     }
 
     public void initContainer(){
-        for(PlayerModel model : party.getModels()){
+        for (PlayerModel model : party.getModels()) {
             model.sizingForMenu(townHub.world.height);
             PlayerCard card = new PlayerCard(model);
+            System.out.println("old model x: " + card.model.getRoot().getTranslateX());
+            card.model.getRoot().setTranslateX(0);
+            System.out.println("old model y: " + card.model.getRoot().getTranslateY());
+            card.model.getRoot().setTranslateY(0);
+            if (card.canLevel){
+                card.root.setBackground(new Background(new BackgroundFill(Color.YELLOW,
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY)));
+            }
             cards.add(card);
             playerContainer.getChildren().add(card.root);
         }
@@ -166,6 +175,8 @@ public class LevelUpScene extends TemplateScene{
         for (PlayerModel model : party.getModels()) {
             model.sizingForMenu(townHub.world.height);
             PlayerCard card = new PlayerCard(model);
+            System.out.println("model x: " + card.model.getRoot().getTranslateX());
+            System.out.println("model y: " + card.model.getRoot().getTranslateY());
             if (card.canLevel){
                 card.root.setBackground(new Background(new BackgroundFill(Color.YELLOW,
                         CornerRadii.EMPTY,
@@ -310,10 +321,12 @@ public class LevelUpScene extends TemplateScene{
                     movablePlayer = findMatch(model);
                 else{
                     PlayerModel mod = movablePlayer;
+                    mod.moveToSaved();
+                    model.moveToSaved();
                     System.out.println("before move | clicked: " + mod.printCoords() + " | " + model.printCoords());
                     PlayerModel temp = model.cloneObj();
-                    party.getSavedSlots()[mod.getX()][mod.getY()] = model;
-                    party.getSavedSlots()[model.getX()][model.getY()] = movablePlayer;
+                    model.setSavedCoords(mod.savedX, mod.savedY);
+                    mod.setSavedCoords(model.getX(), model.getY());
 
                     model.setCoords(mod.getX(), mod.getY());
                     mod.setCoords(temp.getX(), temp.getY());
@@ -335,10 +348,8 @@ public class LevelUpScene extends TemplateScene{
                     System.out.println(tile);
                     if (movablePlayer == null) return;
                     System.out.println("found " + movablePlayer.getName());
-                    party.getSavedSlots()[movablePlayer.getX()][movablePlayer.getY()] = null;
-                    party.getSavedSlots()[tile.getX()][tile.getY()] = movablePlayer;
-                    movablePlayer.setX(tile.getX());
-                    movablePlayer.setY(tile.getY());
+                    movablePlayer.setX(tile.getX()); movablePlayer.savedX = tile.getX();
+                    movablePlayer.setY(tile.getY()); movablePlayer.savedY = tile.getY();
                     movablePlayer = null;
                     placeLayout();
                 });
@@ -363,7 +374,7 @@ public class LevelUpScene extends TemplateScene{
      */
     private void placeLayout(){
         playerLayout.getChildren().clear();
-        townHub.world.moveBackToSaved();
+        party.moveToSavedSlots();
         for (int i = 0; i < Runnable.NUM_ROWS; i ++){
             for (int j = 0; j < Runnable.NUM_COLS; j++){
                 gridAdd(tiles[i][j]);
