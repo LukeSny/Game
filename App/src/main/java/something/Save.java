@@ -423,13 +423,18 @@ public class Save {
     }
     private static void constructTree(String line, Discipline dis){
         Scanner scnr = new Scanner(line);
+        System.out.println("perk line: " + line);
         while (scnr.hasNext()){
             String name = scnr.next();
+            System.out.println("perk name to look for: " + name);
             PerkTree.traverseTree(dis.perkTree.base, new Consumer<Perk>() {
                 @Override
                 public void accept(Perk perk) {
-                    if (perk.name.equals(name))
+                    System.out.println("comparing " + name + " to " + perk.name);
+                    if (removeSpace(perk.name).equals(name)) {
+                        System.out.println("activating: " + perk.name);
                         perk.saveActivate();
+                    }
                 }
             });
         }

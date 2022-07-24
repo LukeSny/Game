@@ -17,7 +17,6 @@ package something.battleScene;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 /**
  * main driver class for fights
  * grid and controller merged, so it is super long
- * governs both the visualization of the battleScene and the underlying logic to control the PlayerModel
+ * governs both the visualization of the battleScene and the underlying logic to control the PlayerModels
  * EnemyController handles enemy movement and that is then utilized here
  */
 public class Grid {
