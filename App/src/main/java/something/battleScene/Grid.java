@@ -363,7 +363,7 @@ public class Grid {
             model.getRoot().setOnMouseClicked(c -> {
                 if(!stillFighting) return;
                 if (abilityMode && selectedAbility.isReady()) {
-                        selectedAbility.abilityAction(selectedModel.get(), model);
+                        selectedAbility.abilityAction(selectedModel.get(), model, party);
                         if (model.getCharacter().hp.getValue() <= 0)
                             killEntity(model);
                         abilityMode = false;
@@ -391,7 +391,7 @@ public class Grid {
                     removeHighlight();
                 }
                 else if (abilityMode && stillFighting && selectedAbility.isReady()){
-                    selectedAbility.abilityAction(selectedModel.get(), enemy);
+                    selectedAbility.abilityAction(selectedModel.get(), enemy, party);
                     if (enemy.getCharacter().hp.getValue() <= 0)
                         killEntity(enemy);
                     removeHighlight();

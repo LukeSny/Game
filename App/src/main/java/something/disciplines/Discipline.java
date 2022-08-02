@@ -54,7 +54,22 @@ public abstract class Discipline {
         abilities = new ArrayList<>();
     }
 
-    //never ever use the default clone!!
+    public boolean hasGivenType(AbilityType type){
+        for (Ability ab : abilities)
+            if (ab.type == type)
+                return true;
+        return false;
+    }
+    public ArrayList<Ability> getTypeAbilities(AbilityType type){
+        ArrayList<Ability> abs = new ArrayList<>();
+        for (Ability ab : abilities){
+            if (ab.type == type)
+                abs.add(ab);
+        }
+        return abs;
+    }
+
+    //never ever use the default clone!! honestly dont remember why its here
     public Discipline cloneObj(){
         return null;
     }

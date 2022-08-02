@@ -6,6 +6,9 @@ import javafx.util.Duration;
 import something.CharacterModel;
 import something.EnemyModel;
 import something.PlayerModel;
+import something.disciplines.Ability;
+import something.disciplines.AbilityType;
+
 import java.util.ArrayList;
 /* This exists as a method for me to fuck around and find out what I can do here. I'm dabbin.
 Let's see what I can make while having no knowledge of what any of your code does and barely remembering java. Dummy.
@@ -71,7 +74,6 @@ public class HoldenAI {
      * Note for Holden if you remember to pull this down... if so thank you
      * I updated the methods inside EnemyController, if you want to copy paste them back you can, or you can use them
      * like this
-     * <p>
      * EnemyController enCon = new EnemyController(grid);  //need to create an instance of the controller
      * enCon.enemyMovement(enemyModel);             //then reference it and then the method with enCon.methodName()
      * Your call
@@ -79,7 +81,7 @@ public class HoldenAI {
 
     public ArrayList<PlayerModel> FindAT(EnemyModel enemy) {
         // First, find enemies in range. Add weight to those enemies.
-        ArrayList<PlayerModel> targets = null;
+        ArrayList<PlayerModel> targets = new ArrayList<>();
         for (PlayerModel character : grid.party.getModels()) {
             character.ATWeight = 0.0;
             if (encon.inRange(enemy, character)) {
@@ -119,21 +121,90 @@ So, looking at the highest priority target first, we want to know these specific
     will move towards the most attractive target. If he is already next to the most attractive target, he will wait
     patiently for his chance to kill.
  */
-public void ChooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy){
-        int consideredTargets;
-
-        if (targets.size()/2 < 2){
-            consideredTargets = 2;
-        }
-        else{
-            consideredTargets = targets.size()/2;
-        }
+    public void ChooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy){
+        int consideredTargets = Math.max(targets.size() / 2, 2);
+        if (targets.size() == 1)
+            consideredTargets = 1;
 
         for(int i = 0; i < consideredTargets; i++){
-        if(encon.inRange(enemy, targets.get(i))){
-            //experiments need doing. I'll be back at this tomorrow.
+            if(encon.inRange(enemy, targets.get(i))){
+                //experiments need doing. I'll be back at this tomorrow.
+
+            }
+        }
+        for (PlayerModel target : targets){
+            /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
+            int apNeeded = encon.getMovementAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
+            if (apNeeded > enemy.getCharacter().actionPoints) continue;
+
+            /*if their damage is enough to kill, then certainly move and attack*/
+            int expectedAttackDamage = enemy.getDamage() - target.getDefense();
+            int expectedAbilityDamage = 0;
+            DumbHolder holder = getMostDamagingAbility(enemy, target);
+            if (holder.ability != null)
+                expectedAbilityDamage = holder.num;
+            /* prioritize regular attack over using an ability*/
+            if (expectedAttackDamage >= target.getCharacter().hp.get()){
+                /*move to the first tile within range and then attack*/
+                encon.move(enemy, encon.getTileInAttackRange(enemy, target));
+                grid.attack(enemy, target);
+                break;
+            }
+            else if (expectedAbilityDamage >= target.getCharacter().hp.get()){
+                encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
+                holder.ability.abilityAction(enemy, target, grid.party);
+            }
+
+
+
         }
     }
+
+    /**
+     *
+     * @return a stupid holder that contains the best ability and the predicted damage it will cause
+     */
+    private DumbHolder getMostDamagingAbility(EnemyModel enemy, PlayerModel model){
+        PlayerModel clone = model.cloneObj();
+        Ability best = null;
+        int mostDamage = 0;
+        for (Ability ab : enemy.getCharacter().discipline.getTypeAbilities(AbilityType.attack)){
+            if (ab.isReady()) {
+                clone.fullHeal();
+                int hpBefore = clone.getCharacter().hp.get();
+                ab.action.accept(enemy, clone);
+                int damage = hpBefore - clone.getCharacter().hp.get();
+                if (damage > mostDamage){
+                    mostDamage = damage;
+                    best = ab;
+                }
+            }
+        }
+        for (Ability ab : enemy.getCharacter().discipline.getTypeAbilities(AbilityType.DOT)){
+            if (ab.isReady()){
+                clone.getEffects().clear();
+                clone.fullHeal();
+                int hpBefore = clone.getCharacter().hp.get();
+                ab.action.accept(enemy, model);
+                while (!clone.getEffects().isEmpty())
+                    clone.playEffects();
+                int damage = hpBefore - clone.getCharacter().hp.get();
+                if (damage > mostDamage){
+                    mostDamage = damage;
+                    best = ab;
+                }
+            }
+        }
+        return new DumbHolder(mostDamage, best);
+    }
+
 }
 
+class DumbHolder{
+    int num;
+    Ability ability;
+    DumbHolder(int nu, Ability ab){
+        num = nu;
+        ability = ab;
+    }
 }

@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import something.CharacterModel;
 import something.EnemyModel;
 import something.PlayerModel;
+import something.disciplines.Ability;
 
 public class EnemyController{
 
@@ -151,6 +152,33 @@ public class EnemyController{
     }
 
     /**
+     *
+     * @param enemy enemy that is being considered
+     * @param model player model that we want to move towards
+     * @return the first tile that puts the player model into the enemy's attack range
+     */
+    public Tile getTileInAttackRange(EnemyModel enemy, PlayerModel model){
+        double currentDistance = getDistance(enemy, model);
+        Tile tile = getCloserTile(model, getTile(enemy));
+        while (currentDistance > enemy.range()){
+            tile = getTile(enemy);
+            getCloserTile(model, tile);
+            currentDistance = getDistance(model, tile);
+        }
+        return tile;
+    }
+    public Tile getTileInAbilityRange(EnemyModel enemy, PlayerModel model, Ability ab){
+        double currentDistance = getDistance(enemy, model);
+        Tile tile = getCloserTile(model, getTile(enemy));
+        while (currentDistance > ab.abilityRange){
+            tile = getTile(enemy);
+            getCloserTile(model, tile);
+            currentDistance = getDistance(model, tile);
+        }
+        return tile;
+    }
+
+    /**
      * returns the PlayerModel that is the closest to the given enemyModel
      * @param enemy which needs to have the closest enemy assigned
      * @return the PlayerModel that is the closest to the given enemy
@@ -164,6 +192,9 @@ public class EnemyController{
         }
         return closest;
 
+    }
+    public Tile getTile(CharacterModel model){
+        return grid.emptyTiles[model.getX()][model.getY()];
     }
 
     public boolean inRange(CharacterModel attacker, CharacterModel defender){
@@ -183,6 +214,14 @@ public class EnemyController{
         int x = thing2.getX() - thing1.getX();
         int y = thing2.getY() - thing1.getY();
         return Math.sqrt(x*x + y*y);
+    }
+
+    /**
+     * @return the ap needed to move to the closest non taken tile between enemy and model
+     */
+    public int getMovementAP(EnemyModel enemy, PlayerModel model){
+        Tile tile = getCloserTile(enemy, grid.emptyTiles[model.getX()][model.getY()]);
+        return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
     }
 
 

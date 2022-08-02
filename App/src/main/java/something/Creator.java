@@ -38,7 +38,7 @@ import java.util.Random;
  * ALSO< NEW DISCIPLINES MUST BE ADDED TO THEIR RESPECTIVE LIST
  */
 public class Creator {
-    private static int xCounter = 0;
+    private static int yCounter = 0;
     static Random rand = new Random();
 
     public static ArrayList<PlayerModel> createPlayers(){
@@ -170,15 +170,15 @@ public class Creator {
 
     public static ArrayList<EnemyModel> listAllEnemies() {
         ArrayList<EnemyModel> list = new ArrayList<>();
-        EnemyModel en1 = new EnemyModel(new Character("goblin", new Goblin()), Grid.COLS - 2, xCounter % Grid.ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
-        list.add(en1); xCounter++;
-        EnemyModel en2 = new EnemyModel(new Character("bandit", new Bandit()), Grid.COLS - 2, xCounter % Grid.ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
-        list.add(en2); xCounter++;
-        EnemyModel en3 = new EnemyModel(new Character("orc", new Orc()), Grid.COLS - 2, xCounter % Grid.ROWS);
-        System.out.println("creating enemy y: " + xCounter % Grid.ROWS);
-        list.add(en3); xCounter++;
+        EnemyModel en1 = new EnemyModel(new Character("goblin", new Goblin()), Grid.ROWS - 2, yCounter % Grid.COLS);
+        System.out.println("creating enemy y: " + yCounter % Grid.ROWS);
+        list.add(en1); yCounter++;
+        EnemyModel en2 = new EnemyModel(new Character("bandit", new Bandit()), Grid.ROWS - 2, yCounter % Grid.COLS);
+        System.out.println("creating enemy y: " + yCounter % Grid.ROWS);
+        list.add(en2); yCounter++;
+        EnemyModel en3 = new EnemyModel(new Character("orc", new Orc()), Grid.ROWS - 2, yCounter % Grid.COLS);
+        System.out.println("creating enemy y: " + yCounter % Grid.ROWS);
+        list.add(en3); yCounter++;
         return list;
     }
 
