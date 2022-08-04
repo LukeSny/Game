@@ -369,7 +369,6 @@ public class Grid {
                         abilityMode = false;
                         removeHighlight();
                         System.out.println("ability name: " + selectedAbility.name);
-                        selectedModel.get().getCharacter().actionPoints -= selectedAbility.apCost;
                         System.out.println("reduced " + selectedModel.get().getName() + " ap by " + selectedAbility.apCost);
                         updateSidePanel();
                 }
@@ -395,7 +394,6 @@ public class Grid {
                     if (enemy.getCharacter().hp.getValue() <= 0)
                         killEntity(enemy);
                     removeHighlight();
-                    selectedModel.get().getCharacter().actionPoints -= selectedAbility.apCost;
                     updateSidePanel();
                 }
             });
@@ -491,16 +489,20 @@ public class Grid {
         if (!stillFighting) return;
         System.out.println("ending turn");
         EnemyController enCon = new EnemyController(this);
+        if (world.oldAI){
+            HoldenAI holdenAI =new HoldenAI(this);
+        }
         for (EnemyModel enemy : enemies.getEnemies()){
-            //try and move
-            enCon.enemyMovement(enemy);
-
-            //attack if next to someone
-            for (PlayerModel model : party.getModels()){
-                if(inRange(enemy, model)) {
-                    System.out.println("en: " + enemy.getCharacter().name + " model: " + model.getCharacter().name);
-                    attack(enemy, model);
-                    break;
+            if (!world.oldAI) {
+                //try and move
+                enCon.enemyMovement(enemy);
+                //attack if next to someone
+                for (PlayerModel model : party.getModels()) {
+                    if (inRange(enemy, model)) {
+                        System.out.println("en: " + enemy.getCharacter().name + " model: " + model.getCharacter().name);
+                        attack(enemy, model);
+                        break;
+                    }
                 }
             }
             enemy.playEffects();

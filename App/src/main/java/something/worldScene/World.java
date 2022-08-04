@@ -99,6 +99,7 @@ public class World {
 
     /* used to determine if we need to give the player back more ap when loading into a battle */
     public boolean justLoaded;
+    public boolean oldAI;
 
     /**
      *
@@ -115,6 +116,7 @@ public class World {
         clockCycles = 0;
         panels = new Panel[PANEL_LENGTH][PANEL_LENGTH];
         initPanels();
+        oldAI = false;
 
         /*grab the user's current screen size and make things full screen*/
         GraphicsDevice gf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();

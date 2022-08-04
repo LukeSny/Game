@@ -41,23 +41,23 @@ public class EnemyController{
     public void enemyMovement(EnemyModel enemy){
         PlayerModel player = findCloser(enemy);
         Tile closest;
-        System.out.println(enemy.getName() + " targeting " + player.getName());
+        //System.out.println(enemy.getName() + " targeting " + player.getName());
         //if within attacking distance, don't move
         if (inRange(enemy, player)) return;
 
         //if close enough to walk on them
         // this solution on works on things that can move 2 tiles
         if(getDistance(enemy, player) <= Math.sqrt(enemy.moveDist()*enemy.moveDist() * 2) + .01 ) {
-            System.out.println("too close moving: " + player.getX() + player.getY());
+            //System.out.println("too close moving: " + player.getX() + player.getY());
             closest = getCloserTile(enemy, grid.emptyTiles[player.getX()][player.getY()]);
         }
         else {
-            System.out.println("far away moving");
+            //System.out.println("far away moving");
             closest = findTile(enemy, grid.emptyTiles[player.getX()][player.getY()]);
         }
-//        System.out.println("dist: " + getDistance(enemy, closest));
-//        System.out.println("range: " + Math.sqrt(enemy.moveDist()*enemy.moveDist() * 2));
-//        System.out.println("lolololololol\n\n\n\n\n");
+//        //System.out.println("dist: " + getDistance(enemy, closest));
+//        //System.out.println("range: " + Math.sqrt(enemy.moveDist()*enemy.moveDist() * 2));
+//        //System.out.println("lolololololol\n\n\n\n\n");
         move(enemy, closest);
 
 
@@ -69,16 +69,18 @@ public class EnemyController{
      * @param tile tile that the enemy will move to
      */
     public void move(EnemyModel enemy, Tile tile){
-
+        if (tile.x == enemy.getX() && tile.y == enemy.getY())
+            return;
+        System.out.println("moving to " + tile.x + ", " + tile.y);
         long actionNeeded = Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
         enemy.getCharacter().actionPoints -= actionNeeded;
-        System.out.println("enemy ap after move: " + enemy.getCharacter().actionPoints);
+        //System.out.println("enemy ap after move: " + enemy.getCharacter().actionPoints);
 
         //update modelTiles
         grid.swapSpot(enemy, tile);
 
         //remove things to be swapped
-        grid.gridView.getChildren().remove(enemy.getRoot());
+        //grid.gridView.getChildren().remove(enemy.getRoot());
 
         TranslateTransition movement = new TranslateTransition();
         movement.setInterpolator(Interpolator.LINEAR);
@@ -96,7 +98,7 @@ public class EnemyController{
         enemy.setY(tile.getY());
 
         //add them back in
-        grid.gridAdd(enemy);
+        //grid.gridAdd(enemy);
         grid.gridAdd(grid.emptyTiles[tempX][tempY]);
     }
 
@@ -160,20 +162,42 @@ public class EnemyController{
     public Tile getTileInAttackRange(EnemyModel enemy, PlayerModel model){
         double currentDistance = getDistance(enemy, model);
         Tile tile = getCloserTile(model, getTile(enemy));
-        while (currentDistance > enemy.range()){
-            tile = getTile(enemy);
-            getCloserTile(model, tile);
-            currentDistance = getDistance(model, tile);
+        System.out.println("enemy range: " + enemy.range());
+        while (currentDistance >= enemy.range() + .01){
+            tile = getCloserTile(model, tile);
+            currentDistance =  Math.round(getDistance(model, tile));
+        }
+        System.out.println("ap has, 1 tile over cost: " + enemy.getAP() + " | " + getAP(enemy, getTile(model)));
+        Tile closest = getCloserTile(enemy, getTile(model));
+        System.out.println("coords of closest: " + closest);
+        if (enemy.getAP() < getAP(model, getTile(enemy)))
+            return getTile(enemy);
+        int apNeeded = getAP(enemy, tile);
+        while (apNeeded > enemy.getCharacter().actionPoints + .01){
+            tile = getCloserTile(enemy, tile);
+            apNeeded = getAP(enemy, tile);
+            System.out.println("ap has/needed: " + enemy.getAP() + " | " + apNeeded);
         }
         return tile;
     }
     public Tile getTileInAbilityRange(EnemyModel enemy, PlayerModel model, Ability ab){
         double currentDistance = getDistance(enemy, model);
         Tile tile = getCloserTile(model, getTile(enemy));
-        while (currentDistance > ab.abilityRange){
-            tile = getTile(enemy);
-            getCloserTile(model, tile);
-            currentDistance = getDistance(model, tile);
+        System.out.println("enemy range: " + ab.abilityRange);
+        while (currentDistance >= ab.abilityRange + .01){
+            tile = getCloserTile(model, tile);
+            currentDistance =  Math.round(getDistance(model, tile));
+        }
+        System.out.println("ap has, 1 tile over cost: " + enemy.getAP() + " | " + getAP(enemy, getTile(model)));
+        Tile closest = getCloserTile(enemy, getTile(model));
+        System.out.println("coords of closest: " + closest);
+        if (enemy.getAP() < getAP(model, getTile(enemy)))
+            return getTile(enemy);
+        int apNeeded = getAP(enemy, tile);
+        while (apNeeded > enemy.getCharacter().actionPoints + .01){
+            tile = getCloserTile(enemy, tile);
+            apNeeded = getAP(enemy, tile);
+            System.out.println("ap has/needed: " + enemy.getAP() + " | " + apNeeded);
         }
         return tile;
     }
@@ -198,9 +222,9 @@ public class EnemyController{
     }
 
     public boolean inRange(CharacterModel attacker, CharacterModel defender){
-        System.out.println("dist: " + getDistance(attacker, defender) + " |range: " + Math.sqrt(attacker.range()*attacker.range() * 2) + .1);
-        System.out.println("attacker x,y: " + attacker.getX() + "|" + attacker.getY());
-        System.out.println("defender x,y: " + defender.getX() + "|" + defender.getY());
+        //System.out.println("dist: " + getDistance(attacker, defender) + " |range: " + Math.sqrt(attacker.range()*attacker.range() * 2) + .1);
+        //System.out.println("attacker x,y: " + attacker.getX() + "|" + attacker.getY());
+        //System.out.println("defender x,y: " + defender.getX() + "|" + defender.getY());
         return getDistance(attacker, defender) < Math.sqrt(attacker.range()*attacker.range() * 2) + .1;
     }
 
@@ -219,8 +243,12 @@ public class EnemyController{
     /**
      * @return the ap needed to move to the closest non taken tile between enemy and model
      */
-    public int getMovementAP(EnemyModel enemy, PlayerModel model){
+    public int getMovementAP(CharacterModel enemy, PlayerModel model){
         Tile tile = getCloserTile(enemy, grid.emptyTiles[model.getX()][model.getY()]);
+        return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
+    }
+
+    public int getAP(CharacterModel enemy, Tile tile){
         return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
     }
 

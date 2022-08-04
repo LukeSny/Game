@@ -86,6 +86,7 @@ public class Ability {
         else if (partyAction != null)
             partyAction.accept(party);
         abilityTimer = abilityRefresh;
+        self.getCharacter().actionPoints -= this.apCost;
     }
 
     public void reduceTimer(){

@@ -20,7 +20,7 @@ public class DOT extends Effect {
 
     public DOT(String name, String image, CharacterModel mod, int time, int dam){
         super(mod, time, name, image, dam);
-        description = "take " + effect + " per turn";
+        description = "take " + effect + " dmg per turn";
         type = EffectType.DOT;
     }
 

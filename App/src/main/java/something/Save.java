@@ -254,7 +254,7 @@ public class Save {
             savedY = ((PlayerModel) player).savedY;
         }
         Character ch = player.character;
-        String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + " " + ch.hp.getValue() + " " + ch.maxHp + " ";
+        String out = ch.name + " " + ch.discipline.name + " " + player.x + " " + player.y + " " + ch.hp.getValue() + " " + ch.maxHp + " ";
         out += ch.xp.getValue() + " " + ch.maxXp + " " + ch.strength + " " + ch.dodge + " " + ch.hit + " " + ch.skillPoint + " ";
         out += ch.actionPoints + " " + ch.damageMod + " " + ch.moveDist + " " + ch.extraDef + " " + ch.actionRegen + " " + savedX + " " + savedY + " ";
         String helm = ch.helmet == null ? null : removeSpace(ch.helmet.name);

@@ -277,6 +277,8 @@ public abstract class CharacterModel implements Serializable {
 
     public void playEffects(){
         effects.forEach(Effect::activate);
+        ArrayList<Effect> toRemove = new ArrayList<>(effects.stream().filter(c -> c.timer <= 0).toList());
+        toRemove.forEach(Effect::remove);
     }
     public void addEffect(Effect effect){
         effects.add(effect);
@@ -285,6 +287,10 @@ public abstract class CharacterModel implements Serializable {
     public void takeGuardedDamage(int num){
         num-= getDefense();
         character.takeDamage(num);
+    }
+
+    public int getAP(){
+        return character.actionPoints;
     }
 
 }

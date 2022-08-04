@@ -39,12 +39,10 @@ public class Effect {
     }
 
     void checkTimer(){
-        if (timer == 0)
-            remove();
         timer--;
     }
 
-    void remove(){
+    public void remove(){
         model.getEffects().remove(this);
     }
 

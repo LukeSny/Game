@@ -28,12 +28,12 @@ public class ATSort {
             // of pivot found so far
             int i = (low - 1);
 
-            for(int j = low; j <= high - 1; j++)
+            for(int j = low; j < high - 1; j++)
             {
 
                 // If current element is smaller
                 // than the pivot
-                if (arr.get(j).ATWeight < pivot)
+                if (arr.get(j).ATWeight <= pivot)
                 {
 
                     // Increment index of

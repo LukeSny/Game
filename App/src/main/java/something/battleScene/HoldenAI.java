@@ -10,6 +10,9 @@ import something.disciplines.Ability;
 import something.disciplines.AbilityType;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 /* This exists as a method for me to fuck around and find out what I can do here. I'm dabbin.
 Let's see what I can make while having no knowledge of what any of your code does and barely remembering java. Dummy.
  */
@@ -19,6 +22,11 @@ public class HoldenAI {
     EnemyController encon;
     public HoldenAI(Grid g) {
         grid = g;
+        encon = new EnemyController(grid);
+        for (EnemyModel enemy : grid.enemies.getEnemies()){
+            System.out.println("now working with: " + enemy.getName());
+            driver(enemy);
+        }
     }
 
     /*
@@ -70,22 +78,18 @@ public class HoldenAI {
     attack range.
      */
 
-    /**
-     * Note for Holden if you remember to pull this down... if so thank you
-     * I updated the methods inside EnemyController, if you want to copy paste them back you can, or you can use them
-     * like this
-     * EnemyController enCon = new EnemyController(grid);  //need to create an instance of the controller
-     * enCon.enemyMovement(enemyModel);             //then reference it and then the method with enCon.methodName()
-     * Your call
-     */
+    public void driver(EnemyModel enemy){
+        ArrayList<PlayerModel> targets = findAT(enemy);
+        chooseActionWarrior(targets, enemy);
+    }
 
-    public ArrayList<PlayerModel> FindAT(EnemyModel enemy) {
+    public ArrayList<PlayerModel> findAT(EnemyModel enemy) {
         // First, find enemies in range. Add weight to those enemies.
         ArrayList<PlayerModel> targets = new ArrayList<>();
         for (PlayerModel character : grid.party.getModels()) {
             character.ATWeight = 0.0;
             if (encon.inRange(enemy, character)) {
-                character.ATWeight += 1000.0;
+                character.ATWeight += 100.0;
             }
             character.ATWeight -= (character.getDefense() / 2);
             character.ATWeight += (character.getDamage() / 2);
@@ -95,7 +99,13 @@ public class HoldenAI {
             targets.add(character);
 
         }
-        ATSort.quickSort(targets, 1, 2);
+        Comparator<PlayerModel> byAT = Comparator.comparing(c -> c.ATWeight);
+        //ATSort.quickSort(targets, 1, 2);
+        targets.sort(byAT.reversed());
+        System.out.println("list of target attraction");
+        targets.forEach(c -> {
+            System.out.println(c.getName() + ": " + c.ATWeight);
+        });
         return targets;
     }
 
@@ -121,43 +131,98 @@ So, looking at the highest priority target first, we want to know these specific
     will move towards the most attractive target. If he is already next to the most attractive target, he will wait
     patiently for his chance to kill.
  */
-    public void ChooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy){
+    public void chooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy){
         int consideredTargets = Math.max(targets.size() / 2, 2);
         if (targets.size() == 1)
             consideredTargets = 1;
+        boolean acted = false;
 
-        for(int i = 0; i < consideredTargets; i++){
-            if(encon.inRange(enemy, targets.get(i))){
-                //experiments need doing. I'll be back at this tomorrow.
-
-            }
-        }
+        System.out.println("lethal attacks");
         for (PlayerModel target : targets){
+            System.out.println("currently considering target: " + target.getName());
             /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
             int apNeeded = encon.getMovementAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
-            if (apNeeded > enemy.getCharacter().actionPoints) continue;
+            if (apNeeded > enemy.getCharacter().actionPoints) {
+                System.out.println("not enough ap");
+                continue;
+            }
 
             /*if their damage is enough to kill, then certainly move and attack*/
             int expectedAttackDamage = enemy.getDamage() - target.getDefense();
             int expectedAbilityDamage = 0;
             DumbHolder holder = getMostDamagingAbility(enemy, target);
+
             if (holder.ability != null)
                 expectedAbilityDamage = holder.num;
+            System.out.println("attack | ab damage: " + expectedAttackDamage + " | " + expectedAbilityDamage);
             /* prioritize regular attack over using an ability*/
             if (expectedAttackDamage >= target.getCharacter().hp.get()){
+                System.out.println("lethal attack");
                 /*move to the first tile within range and then attack*/
                 encon.move(enemy, encon.getTileInAttackRange(enemy, target));
                 grid.attack(enemy, target);
                 break;
             }
             else if (expectedAbilityDamage >= target.getCharacter().hp.get()){
+                System.out.println("lethal ability");
                 encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
                 holder.ability.abilityAction(enemy, target, grid.party);
             }
-
-
-
+            acted = true;
         }
+        /*if no kill moves were found, see if you can attack/ability someone*/
+        System.out.println("non lethal attacks");
+        for (PlayerModel target : targets){
+            System.out.println("currently considering target: " + target.getName());
+            /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
+
+
+
+            /* prioritize either attack or ability based on what will do more damage*/
+            int expectedAttackDamage = enemy.getDamage() - target.getDefense();
+            int expectedAbilityDamage = 0;
+            int abilityAP = 1000; // ridiculous number so it only passes checks when actually assigned
+            DumbHolder holder = getMostDamagingAbility(enemy, target);
+
+            if (holder.ability != null) {
+                expectedAbilityDamage = holder.num;
+                abilityAP = encon.getMovementAP(enemy, target) + holder.ability.apCost;
+            }
+            int attackAP = encon.getMovementAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
+
+            if (attackAP > enemy.getAP() && abilityAP > enemy.getAP()) {
+                System.out.println("not enough ap");
+                continue;
+            }
+            System.out.println("attack | ab damage: " + expectedAttackDamage + " | " + expectedAbilityDamage);
+            /* prioritize regular attack over using an ability*/
+            if (expectedAttackDamage >= expectedAbilityDamage && attackAP <= enemy.getAP()){
+                System.out.println("attacking!");
+                /*move to the first tile within range and then attack*/
+                encon.move(enemy, encon.getTileInAttackRange(enemy, target));
+                grid.attack(enemy, target);
+                break;
+            }
+            else if (abilityAP <= enemy.getAP()){
+                System.out.println("using an ability!");
+                encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
+                holder.ability.abilityAction(enemy, target, grid.party);
+            }
+            acted = true;
+        }
+        /*if no offensive actions were found to be viable, move in range of the most valuable player*/
+        if (!acted) {
+            System.out.println("no offensive moves found, moving towards " + targets.get(0).getName());
+            Tile tile = encon.getTileInAttackRange(enemy, targets.get(0));
+            System.out.println("tile: " + tile.x + ", " + tile.y);
+            encon.move(enemy, tile);
+            System.out.println("move successful");
+        }
+
+
+        /*if they have enough action to make an impact, go again*/
+        if (enemy.getAP() >= enemy.getCharacter().discipline.attackActionCost)
+            chooseActionWarrior(targets, enemy);
     }
 
     /**
