@@ -51,6 +51,24 @@ public abstract class TemplateScene {
         });
     }
 
+    public TemplateScene(World world){
+        townHub = null;
+        party = world.party.party;
+        stage = world.primaryStage;
+        root = new VBox();
+//        root.setMinWidth(Runnable.SCREEN_SIZE);
+//        root.setMinHeight(Runnable.SCREEN_SIZE);
+        returnButton = new Button("return to the world [q]");
+        returnButton.setOnAction(c -> world.enterWorld());
+        root.getChildren().add(returnButton);
+
+        root.setOnKeyPressed(c -> {
+            if (c.getCode() == KeyCode.Q){
+                world.enterWorld();
+            }
+        });
+    }
+
     public void displayTownHub(){
         System.out.println("moving to hub");
         stage.getScene().setRoot(townHub.root);

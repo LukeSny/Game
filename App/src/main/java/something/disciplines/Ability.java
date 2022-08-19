@@ -97,7 +97,7 @@ public class Ability {
         return abilityTimer == 0;
     }
 
-    public static final Ability poison = new Ability("poison", 1, 2, 3, false, AbilityType.DOT,"ability/poison.png", new BiConsumer<CharacterModel, CharacterModel>() {
+    public static final Ability poison = new Ability("poison", 1, 3, 3, false, AbilityType.DOT,"ability/poison.png", new BiConsumer<CharacterModel, CharacterModel>() {
         @Override
         public void accept(CharacterModel self, CharacterModel other) {
             other.addEffect(new DOT("poison", "ability/poison.png", other, 3, self.getDamage() / 2));

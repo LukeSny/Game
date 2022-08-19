@@ -30,7 +30,7 @@ public class Perk {
     public boolean activated;
     public ImageView activeImage;
     public ImageView grayImage;
-    String description;
+    public String description;
     public Consumer<Character> action;
     public VBox root;
     public ArrayList<Perk> unlocks;

@@ -132,52 +132,32 @@ So, looking at the highest priority target first, we want to know these specific
     patiently for his chance to kill.
  */
     public void chooseActionWarrior(ArrayList<PlayerModel> targets, EnemyModel enemy){
-        int consideredTargets = Math.max(targets.size() / 2, 2);
-        if (targets.size() == 1)
-            consideredTargets = 1;
-        boolean acted = false;
 
-        System.out.println("lethal attacks");
-        for (PlayerModel target : targets){
-            System.out.println("currently considering target: " + target.getName());
-            /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
-            int apNeeded = encon.getMovementAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
-            if (apNeeded > enemy.getCharacter().actionPoints) {
-                System.out.println("not enough ap");
-                continue;
-            }
-
-            /*if their damage is enough to kill, then certainly move and attack*/
-            int expectedAttackDamage = enemy.getDamage() - target.getDefense();
-            int expectedAbilityDamage = 0;
-            DumbHolder holder = getMostDamagingAbility(enemy, target);
-
-            if (holder.ability != null)
-                expectedAbilityDamage = holder.num;
-            System.out.println("attack | ab damage: " + expectedAttackDamage + " | " + expectedAbilityDamage);
-            /* prioritize regular attack over using an ability*/
-            if (expectedAttackDamage >= target.getCharacter().hp.get()){
-                System.out.println("lethal attack");
-                /*move to the first tile within range and then attack*/
-                encon.move(enemy, encon.getTileInAttackRange(enemy, target));
-                grid.attack(enemy, target);
-                break;
-            }
-            else if (expectedAbilityDamage >= target.getCharacter().hp.get()){
-                System.out.println("lethal ability");
-                encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
-                holder.ability.abilityAction(enemy, target, grid.party);
-            }
-            acted = true;
-        }
+        /*check if any of the targets can be killed, if so then do that*/
+        boolean acted = checkLethalAction(targets, enemy);
         /*if no kill moves were found, see if you can attack/ability someone*/
-        System.out.println("non lethal attacks");
+        acted = checkNonLethalAction(targets, enemy, acted);
+        System.out.println("enemy ability list: ");
+        enemy.getCharacter().discipline.abilities.forEach(c -> System.out.println(c.name));
+        /*if no offensive actions were found to be viable, move in range of the most valuable player*/
+        if (!acted) {
+            System.out.println("no offensive moves found, moving towards " + targets.get(0).getName());
+            Tile tile = encon.getTileInAttackRange(enemy, targets.get(0));
+            System.out.println("tile: " + tile.x + ", " + tile.y);
+            encon.justMove(enemy, tile);
+            System.out.println("move successful");
+        }
+
+        /*if they have enough action to make an impact, go again*/
+        if (enemy.getAP() >= enemy.getCharacter().discipline.attackActionCost) {
+            System.out.println("acting again");
+            chooseActionWarrior(targets, enemy);
+        }
+        System.out.println("acted status: " + acted);
+    }
+
+    private boolean checkNonLethalAction(ArrayList<PlayerModel> targets, EnemyModel enemy, boolean acted) {
         for (PlayerModel target : targets){
-            System.out.println("currently considering target: " + target.getName());
-            /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
-
-
-
             /* prioritize either attack or ability based on what will do more damage*/
             int expectedAttackDamage = enemy.getDamage() - target.getDefense();
             int expectedAbilityDamage = 0;
@@ -186,43 +166,84 @@ So, looking at the highest priority target first, we want to know these specific
 
             if (holder.ability != null) {
                 expectedAbilityDamage = holder.num;
-                abilityAP = encon.getMovementAP(enemy, target) + holder.ability.apCost;
+                abilityAP = encon.getAbilityMovementAP(enemy, target, holder.ability) + holder.ability.apCost;
             }
-            int attackAP = encon.getMovementAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
+            int attackAP = encon.getAttackMoveAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
 
-            if (attackAP > enemy.getAP() && abilityAP > enemy.getAP()) {
-                System.out.println("not enough ap");
+            boolean hasAPforAttack = enemy.getAP() >= attackAP;
+            boolean hasAPforAbility = enemy.getAP() >= abilityAP;
+
+            if (!hasAPforAttack && !hasAPforAbility) {
+                System.out.println("not enough ap for non-lethal");
                 continue;
             }
             System.out.println("attack | ab damage: " + expectedAttackDamage + " | " + expectedAbilityDamage);
             /* prioritize regular attack over using an ability*/
-            if (expectedAttackDamage >= expectedAbilityDamage && attackAP <= enemy.getAP()){
+            if (expectedAttackDamage >= expectedAbilityDamage && hasAPforAttack){
                 System.out.println("attacking!");
+                System.out.println("attack ap needed | has: " + attackAP + " | " + enemy.getAP());
                 /*move to the first tile within range and then attack*/
-                encon.move(enemy, encon.getTileInAttackRange(enemy, target));
-                grid.attack(enemy, target);
+//                encon.move(enemy, encon.getTileInAttackRange(enemy, target));
+//                grid.attack(enemy, target);
+                encon.moveAndAttack(enemy, target, encon.getTileInAttackRange(enemy, target));
+                acted = true;
                 break;
             }
-            else if (abilityAP <= enemy.getAP()){
+            else if (hasAPforAbility && holder.ability != null){
                 System.out.println("using an ability!");
+                System.out.println("ability ap needed | has: " + abilityAP + " | " + enemy.getAP());
                 encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
                 holder.ability.abilityAction(enemy, target, grid.party);
+                acted = true;
             }
-            acted = true;
+
         }
-        /*if no offensive actions were found to be viable, move in range of the most valuable player*/
-        if (!acted) {
-            System.out.println("no offensive moves found, moving towards " + targets.get(0).getName());
-            Tile tile = encon.getTileInAttackRange(enemy, targets.get(0));
-            System.out.println("tile: " + tile.x + ", " + tile.y);
-            encon.move(enemy, tile);
-            System.out.println("move successful");
-        }
+        return acted;
+    }
+
+    private boolean checkLethalAction(ArrayList<PlayerModel> targets, EnemyModel enemy) {
+        boolean acted = false;
+        for (PlayerModel target : targets){
+            System.out.println("currently considering target: " + target.getName());
+            /*action points needed to move and attack this enemy, if more than current ap, skip this target*/
 
 
-        /*if they have enough action to make an impact, go again*/
-        if (enemy.getAP() >= enemy.getCharacter().discipline.attackActionCost)
-            chooseActionWarrior(targets, enemy);
+
+            /*if their damage is enough to kill, then certainly move and attack*/
+            int expectedAttackDamage = enemy.getDamage() - target.getDefense();
+            int expectedAbilityDamage = 0;
+            int abilityAP = 1000; // ridiculous number so it only passes checks when actually assigned
+            DumbHolder holder = getMostDamagingAbility(enemy, target);
+
+            if (holder.ability != null) {
+                expectedAbilityDamage = holder.num;
+                abilityAP = encon.getAbilityMovementAP(enemy, target, holder.ability) + holder.ability.apCost;
+            }
+            int attackAP = encon.getAttackMoveAP(enemy, target) + enemy.getCharacter().discipline.attackActionCost;
+            boolean hasAPforAttack = enemy.getAP() >= attackAP;
+            boolean hasAPforAbility = enemy.getAP() >= abilityAP;
+            if (!hasAPforAttack && !hasAPforAbility) {
+                System.out.println("not enough ap for lethal");
+                continue;
+            }
+
+            System.out.println("attack | ab damage: " + expectedAttackDamage + " | " + expectedAbilityDamage);
+            /* prioritize regular attack over using an ability*/
+            if (expectedAttackDamage >= target.getCharacter().hp.get() && hasAPforAttack){
+                System.out.println("doing a lethal attack");
+                /*move to the first tile within range and then attack*/
+                encon.moveAndAttack(enemy, target, encon.getTileInAttackRange(enemy, target));
+                acted = true;
+                break;
+            }
+            else if (expectedAbilityDamage >= target.getCharacter().hp.get() && hasAPforAbility && holder.ability != null){
+                System.out.println("lethal ability");
+                encon.move(enemy, encon.getTileInAbilityRange(enemy, target, holder.ability));
+                holder.ability.abilityAction(enemy, target, grid.party);
+                acted = true;
+            }
+        }
+        return acted;
     }
 
     /**
@@ -250,7 +271,7 @@ So, looking at the highest priority target first, we want to know these specific
                 clone.getEffects().clear();
                 clone.fullHeal();
                 int hpBefore = clone.getCharacter().hp.get();
-                ab.action.accept(enemy, model);
+                ab.action.accept(enemy, clone);
                 while (!clone.getEffects().isEmpty())
                     clone.playEffects();
                 int damage = hpBefore - clone.getCharacter().hp.get();

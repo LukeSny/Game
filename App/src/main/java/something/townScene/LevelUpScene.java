@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 
 public class LevelUpScene extends TemplateScene{
 
-    StackPane root;
+    public StackPane root;
     HBox backGround;
     VBox leftPanel;
     VBox middlePanel;
@@ -60,9 +60,24 @@ public class LevelUpScene extends TemplateScene{
     PlayerModel movablePlayer;
 
     int movableRectSize;
+    World world;
+
+    boolean cameFromTown;
 
     public LevelUpScene(TownHub hub, World world){
         super(hub, world);
+        this.world = world;
+        cameFromTown = true;
+        initalSetUp(world);
+    }
+    public LevelUpScene(World world){
+        super(world);
+        cameFromTown = false;
+        this.world = world;
+        initalSetUp(world);
+    }
+
+    private void initalSetUp(World world) {
         movableRectSize = (world.width / 3) / Runnable.NUM_COLS;
         root = new StackPane();
         root.setPrefSize(world.width, world.height);
@@ -113,7 +128,7 @@ public class LevelUpScene extends TemplateScene{
 
     public void initContainer(){
         for (PlayerModel model : party.getModels()) {
-            model.sizingForMenu(townHub.world.height);
+            model.sizingForMenu(world.height);
             PlayerCard card = new PlayerCard(model);
             System.out.println("old model x: " + card.model.getRoot().getTranslateX());
             card.model.getRoot().setTranslateX(0);
@@ -173,7 +188,7 @@ public class LevelUpScene extends TemplateScene{
         playerContainer.getChildren().clear();
         cards.clear();
         for (PlayerModel model : party.getModels()) {
-            model.sizingForMenu(townHub.world.height);
+            model.sizingForMenu(world.height);
             PlayerCard card = new PlayerCard(model);
             System.out.println("model x: " + card.model.getRoot().getTranslateX());
             System.out.println("model y: " + card.model.getRoot().getTranslateY());
@@ -195,7 +210,10 @@ public class LevelUpScene extends TemplateScene{
         /* press q to go back to town hub */
         backGround.setOnKeyPressed(c -> {
             if (c.getCode() == KeyCode.Q){
-                displayTownHub();
+                if (cameFromTown)
+                    displayTownHub();
+                else
+                    world.enterWorld();
             }
             else if (c.getCode() == KeyCode.L && selectedPlayer != null && selectedPlayer.canLevel){
                 levelUp(selectedPlayer.model);
@@ -489,7 +507,9 @@ public class LevelUpScene extends TemplateScene{
         if (model.getCharacter().discipline.perkTree == null) return;
         System.out.println("adding model perk tree");
         model.getCharacter().discipline.perkTree.constructView((int) rightPanel.getPrefWidth(), (int) rightPanel.getPrefHeight() / 2);
-        rightPanel.getChildren().add(model.getCharacter().discipline.perkTree.root);
+        Label desc = new Label();
+        desc.setWrapText(true);
+        rightPanel.getChildren().addAll(model.getCharacter().discipline.perkTree.root, desc);
         PerkTree.traverseTree(model.getCharacter().discipline.perkTree.base, new Consumer<Perk>() {
             @Override
             public void accept(Perk perk) {
@@ -500,6 +520,9 @@ public class LevelUpScene extends TemplateScene{
                         perk.activate(model.getCharacter());
                         detailedCharView(model);
                     }
+                });
+                perk.root.hoverProperty().addListener(c -> {
+                    desc.setText(perk.description);
                 });
             }
         });
@@ -513,7 +536,7 @@ public class LevelUpScene extends TemplateScene{
 
     public void levelUp(PlayerModel model){
         VBox popUp = new VBox();
-        townHub.world.stylePopUp(popUp);
+        world.stylePopUp(popUp);
         popUp.setAlignment(Pos.CENTER);
         root.getChildren().add(popUp);
 

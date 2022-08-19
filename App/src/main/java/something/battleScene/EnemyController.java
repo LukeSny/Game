@@ -15,6 +15,8 @@
 package something.battleScene;
 
 import javafx.animation.Interpolator;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import something.CharacterModel;
@@ -68,27 +70,28 @@ public class EnemyController{
      * @param enemy enemyModel that needs to be moved
      * @param tile tile that the enemy will move to
      */
-    public void move(EnemyModel enemy, Tile tile){
+    public TranslateTransition move(EnemyModel enemy, Tile tile){
+        TranslateTransition movement = new TranslateTransition();
         if (tile.x == enemy.getX() && tile.y == enemy.getY())
-            return;
+            return movement;
+        moveSetUp(tile, enemy, movement);
+
+        return movement;
+    }
+
+    private void moveSetUp(Tile tile, EnemyModel enemy, TranslateTransition movement) {
         System.out.println("moving to " + tile.x + ", " + tile.y);
         long actionNeeded = Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
         enemy.getCharacter().actionPoints -= actionNeeded;
-        //System.out.println("enemy ap after move: " + enemy.getCharacter().actionPoints);
 
         //update modelTiles
         grid.swapSpot(enemy, tile);
 
-        //remove things to be swapped
-        //grid.gridView.getChildren().remove(enemy.getRoot());
-
-        TranslateTransition movement = new TranslateTransition();
         movement.setInterpolator(Interpolator.LINEAR);
         movement.setToX(tile.back.getTranslateX());
         movement.setToY(tile.back.getTranslateY());
         movement.setDuration(Duration.seconds(.5));
         movement.setNode(enemy.getRoot());
-        movement.play();
         grid.gridView.getChildren().remove(tile.back);
 
         //swap around x and y values
@@ -97,9 +100,31 @@ public class EnemyController{
         enemy.setX(tile.getX());
         enemy.setY(tile.getY());
 
-        //add them back in
-        //grid.gridAdd(enemy);
         grid.gridAdd(grid.emptyTiles[tempX][tempY]);
+    }
+
+    public void justMove(EnemyModel enemy, Tile tile){
+        TranslateTransition movement = new TranslateTransition();
+        if (tile.x == enemy.getX() && tile.y == enemy.getY())
+            return;
+        moveSetUp(tile, enemy, movement);
+
+        movement.play();
+    }
+
+    public void moveAndAttack(EnemyModel enemy, PlayerModel model, Tile tile){
+        TranslateTransition move = move(enemy, tile);
+        TranslateTransition attack = grid.attack(enemy, model);
+        double goingX = tile.getBack().getTranslateX();
+        double goingY = tile.getBack().getTranslateY();
+        attack.setFromX(goingX); attack.setToX(model.getRoot().getTranslateX());
+        attack.setFromY(goingY); attack.setToY(model.getRoot().getTranslateY());
+        attack.setCycleCount(2);
+        attack.setAutoReverse(true);
+        PauseTransition pause = new PauseTransition(Duration.millis(200));
+        SequentialTransition sequence = new SequentialTransition(move, pause, attack);
+        sequence.setNode(enemy.getRoot());
+        sequence.play();
     }
 
     /**
@@ -164,6 +189,7 @@ public class EnemyController{
         Tile tile = getCloserTile(model, getTile(enemy));
         System.out.println("enemy range: " + enemy.range());
         while (currentDistance >= enemy.range() + .01){
+            System.out.println("attack dis");
             tile = getCloserTile(model, tile);
             currentDistance =  Math.round(getDistance(model, tile));
         }
@@ -176,15 +202,17 @@ public class EnemyController{
         while (apNeeded > enemy.getCharacter().actionPoints + .01){
             tile = getCloserTile(enemy, tile);
             apNeeded = getAP(enemy, tile);
-            System.out.println("ap has/needed: " + enemy.getAP() + " | " + apNeeded);
+            System.out.println("attack ap has/needed: " + enemy.getAP() + " | " + apNeeded);
         }
         return tile;
     }
     public Tile getTileInAbilityRange(EnemyModel enemy, PlayerModel model, Ability ab){
+        System.out.println("ab stats: " + ab.name + " | " + ab.abilityRange);
         double currentDistance = getDistance(enemy, model);
         Tile tile = getCloserTile(model, getTile(enemy));
         System.out.println("enemy range: " + ab.abilityRange);
         while (currentDistance >= ab.abilityRange + .01){
+            System.out.println("ab dist");
             tile = getCloserTile(model, tile);
             currentDistance =  Math.round(getDistance(model, tile));
         }
@@ -197,7 +225,7 @@ public class EnemyController{
         while (apNeeded > enemy.getCharacter().actionPoints + .01){
             tile = getCloserTile(enemy, tile);
             apNeeded = getAP(enemy, tile);
-            System.out.println("ap has/needed: " + enemy.getAP() + " | " + apNeeded);
+            System.out.println("attack ap has/needed: " + enemy.getAP() + " | " + apNeeded);
         }
         return tile;
     }
@@ -245,6 +273,14 @@ public class EnemyController{
      */
     public int getMovementAP(CharacterModel enemy, PlayerModel model){
         Tile tile = getCloserTile(enemy, grid.emptyTiles[model.getX()][model.getY()]);
+        return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
+    }
+    public int getAttackMoveAP(EnemyModel enemy, PlayerModel model){
+        Tile tile = getTileInAttackRange(enemy, model);
+        return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
+    }
+    public int getAbilityMovementAP(EnemyModel enemy, PlayerModel model, Ability ab){
+        Tile tile = getTileInAbilityRange(enemy, model, ab);
         return (int) Math.round(getDistance(enemy, tile) / enemy.getCharacter().moveDist);
     }
 

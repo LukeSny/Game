@@ -24,6 +24,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -35,6 +36,7 @@ import javafx.util.Duration;
 import something.Runnable;
 import something.*;
 import something.battleScene.Grid;
+import something.townScene.LevelUpScene;
 import something.townScene.TownHub;
 
 import java.awt.*;
@@ -381,14 +383,11 @@ public class World {
             map();
         if (c.getCode() == KeyCode.T)
             save();
-        if (c.getCode() == KeyCode.R){
-            World saved = Save.readSave(primaryStage);
-            primaryStage.getScene().setRoot(saved.currentPanel.root);
-            primaryStage.setFullScreen(true);
-        }
         if (c.getCode() == KeyCode.ESCAPE){
-            save();
-            System.exit(0);
+            openMenu();
+        }
+        if (c.getCode() == KeyCode.R){
+            openPartyScreen();
         }
         if (c.getCode() == KeyCode.Y){
             Save.writeSave(this, "defaultSave.txt");
@@ -701,23 +700,31 @@ public class World {
         }
     }
 
-    /**
-     * moves the PlayerModels in the party back to the saved slots for the next combat
-     */
-//    public void moveBackToSaved(){
-//        for (PlayerModel model : party.party.getModels()){
-//            for (int i = 0; i < Runnable.NUM_ROWS; i++) {
-//                for (int j = 0; j < Runnable.NUM_COLS; j++){
-//                    if(party.party.getSavedSlots()[i][j] == null) continue;
-//                    if (model.getCharacter().name.equalsIgnoreCase(party.party.getSavedSlots()[i][j].getCharacter().name)){
-//                        model.setCoords(i, j);
-//                        model.getRoot().setTranslateX(0);
-//                        model.getRoot().setTranslateY(0);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    public void openMenu(){
+        stillMoving = false;
+        VBox menu = new VBox();
+        stylePopUp(menu);
+        Label title = new Label("Paused");
+        Button close = new Button("Close");
+        Button saveNquit = new Button("Save and Quit");
+        Button justQuit = new Button("Quit Without Saving");
+        menu.getChildren().addAll(title, saveNquit, justQuit, close);
+        close.setOnAction(c -> {
+            stillMoving = true;
+            currentPanel.root.getChildren().remove(menu);
+        });
+        saveNquit.setOnAction(c -> {
+            save();
+            System.exit(0);
+        });
+        justQuit.setOnAction(c -> System.exit(0));
+        currentPanel.root.getChildren().add(menu);
+    }
+
+    public void openPartyScreen(){
+        LevelUpScene level = new LevelUpScene(this);
+        primaryStage.getScene().setRoot(level.root);
+    }
 
     /**
      * correctly size the model to fit in the grid and battleScene
@@ -755,8 +762,9 @@ public class World {
                 CornerRadii.EMPTY,
                 Insets.EMPTY)));
         back.setMaxSize(width / 2, height / 2);
-        back.setTranslateX(width / 4); back.setTranslateY(height / 4);
-        back.setTranslateX(10); back.setTranslateY(10);
+        back.setMinSize(width / 2, height / 2);
+        int x = 4;
+        back.setTranslateX(width / x); back.setTranslateY(height / x);
         back.setAlignment(Pos.CENTER);
     }
 

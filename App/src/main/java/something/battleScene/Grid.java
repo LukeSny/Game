@@ -15,6 +15,7 @@
 package something.battleScene;
 
 import javafx.animation.Interpolator;
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
@@ -125,7 +126,7 @@ public class Grid {
             System.out.println("selected current action points: " + selectedModel.get().getCharacter().actionPoints);
             removeHighlight();
             highLightActionMove();
-            updateSidePanel();
+            updateSidePanel(selectedModel.get());
         });
         stillFighting = true;
         abilityMode = false;
@@ -221,7 +222,7 @@ public class Grid {
                 model.getCharacter().actionPoints = 5;
             }
             modelTiles[model.getX()][model.getY()] = model;
-            updateSidePanel();
+            updateSidePanel(selectedModel.get());
         }
         for (EnemyModel enemy : enemies.getEnemies()){
             modelTiles[enemy.getX()][enemy.getY()] = enemy;
@@ -240,10 +241,10 @@ public class Grid {
         if (model == null) return;
         if (empty == null) return;
 
-        long actionNeeded = Math.round(getDistance(model, empty) / model.getCharacter().moveDist);
+        long actionNeeded = Math.max(Math.round(getDistance(model, empty) / model.getCharacter().moveDist),1 );
         if (actionNeeded > model.getCharacter().actionPoints) return;
         model.getCharacter().actionPoints -= actionNeeded;
-        updateSidePanel();
+        updateSidePanel(selectedModel.get());
         int tempX = model.getX();
         int tempY = model.getY();
 
@@ -370,7 +371,7 @@ public class Grid {
                         removeHighlight();
                         System.out.println("ability name: " + selectedAbility.name);
                         System.out.println("reduced " + selectedModel.get().getName() + " ap by " + selectedAbility.apCost);
-                        updateSidePanel();
+                        updateSidePanel(selectedModel.get());
                 }
                 else {
                     selectedModel.set(model);
@@ -394,7 +395,10 @@ public class Grid {
                     if (enemy.getCharacter().hp.getValue() <= 0)
                         killEntity(enemy);
                     removeHighlight();
-                    updateSidePanel();
+                    updateSidePanel(selectedModel.get());
+                }
+                else {
+                    updateSidePanel(enemy);
                 }
             });
         }
@@ -441,6 +445,9 @@ public class Grid {
             }
             else if (c.getCode() == KeyCode.DIGIT0)
                 victory();
+            else if (c.getCode() == KeyCode.ESCAPE){
+                openMenu();
+            }
         });
     }
 
@@ -462,7 +469,7 @@ public class Grid {
         highLightAbility();
 //                   if (selectedModel.get().getCharacter().discipline.targetGrid)
 //                       selected.getCharacter().discipline.ability(this);
-        updateSidePanel();
+        updateSidePanel(selectedModel.get());
     }
 
     /**
@@ -506,11 +513,16 @@ public class Grid {
                 }
             }
             enemy.playEffects();
+            killIfDead(enemy);
             enemy.getCharacter().regenAction();
+            for (Ability ab : enemy.getCharacter().discipline.abilities){
+                ab.reduceTimer();
+            }
         }
         //activate status effects for everyone at the end of the round
         for (PlayerModel model : party.getModels()){
             model.playEffects();
+            killIfDead(model);
             model.getCharacter().regenAction();
             for (Ability ab : model.getCharacter().discipline.abilities){
                 ab.reduceTimer();
@@ -520,7 +532,7 @@ public class Grid {
         //printModelGrid();
         //printEmptyGrid();
         highLightActionMove();
-        updateSidePanel();
+        updateSidePanel(selectedModel.get());
 
 
     }
@@ -531,31 +543,48 @@ public class Grid {
      * @param attacker the Model that is attacking
      * @param defender the Model that is getting rekt m8
      */
-    public void attack(CharacterModel attacker, CharacterModel defender){
+    public TranslateTransition attack(CharacterModel attacker, CharacterModel defender){
         TranslateTransition attackAni = new TranslateTransition();
         if(inRange(attacker, defender)) {
-            System.out.println("defended " + defender.getDefense() + " amount of damage");
-            defender.getCharacter().takeDamage(attacker.getCharacter().attack() - defender.getDefense());
+            setUpAttack(attacker, defender, attackAni);
+        }
+        return attackAni;
+    }
 
-            attacker.getCharacter().actionPoints -= attacker.getCharacter().discipline.attackActionCost;
-            System.out.println("attacker action after defense: " + attacker.getName() + " | " + attacker.getCharacter().actionPoints);
-            updateSidePanel();
+    public void justAttack(CharacterModel attacker, CharacterModel defender){
+        TranslateTransition attackAni = new TranslateTransition();
+        if(inRange(attacker, defender)) {
+            setUpAttack(attacker, defender, attackAni);
+            attackAni.play();
+        }
+    }
 
-            attackAni.setFromX(attacker.getRoot().getTranslateX());
-            attackAni.setFromY(attacker.getRoot().getTranslateY());
-            attackAni.setToX(defender.getRoot().getTranslateX());
-            attackAni.setToY(defender.getRoot().getTranslateY());
-            attackAni.setCycleCount(2);
-            attackAni.setInterpolator(Interpolator.LINEAR);
-            attackAni.setAutoReverse(true);
-            attackAni.setNode(attacker.getRoot());
-            if (attacker instanceof PlayerModel) {
-                attackAni.play();
-            }
-            System.out.println("defender's health after hit: " + defender.getCharacter().hp.getValue());
-            if(defender.getCharacter().hp.getValue() <= 0 ) {
-                killEntity(defender);
-            }
+
+    private void setUpAttack(CharacterModel attacker, CharacterModel defender, TranslateTransition attackAni) {
+        System.out.println("defended " + defender.getDefense() + " amount of damage");
+        defender.getCharacter().takeDamage(attacker.getCharacter().attack() - defender.getDefense());
+
+        attacker.getCharacter().actionPoints -= attacker.getCharacter().discipline.attackActionCost;
+        System.out.println("attacker action after defense: " + attacker.getName() + " | " + attacker.getCharacter().actionPoints);
+        updateSidePanel(selectedModel.get());
+
+        attackAni.setFromX(attacker.getRoot().getTranslateX());
+        attackAni.setFromY(attacker.getRoot().getTranslateY());
+        attackAni.setToX(defender.getRoot().getTranslateX());
+        attackAni.setToY(defender.getRoot().getTranslateY());
+        attackAni.setCycleCount(2);
+        attackAni.setInterpolator(Interpolator.LINEAR);
+        attackAni.setAutoReverse(true);
+        attackAni.setNode(attacker.getRoot());
+
+
+        System.out.println("defender's health after hit: " + defender.getCharacter().hp.getValue());
+        killIfDead(defender);
+    }
+
+    private void killIfDead(CharacterModel entity){
+        if(entity.getCharacter().hp.getValue() <= 0 ) {
+            killEntity(entity);
         }
     }
 
@@ -616,7 +645,7 @@ public class Grid {
         world.stylePopUp(back);
 
         back.getChildren().addAll(title, xpGain, itemTitle, itemReward);
-        root.getChildren().add(back);
+        gridView.getChildren().add(back);
         if (enemies.getLootDrop().isEmpty())
             itemTitle.setText("Items Looted: None");
         for (ItemCard item : enemies.getLootDrop()){
@@ -742,7 +771,7 @@ public class Grid {
             party.getModels().remove(defender);
             if (defender.equals(selectedModel.get())) {
                 selectedModel.set(null);
-                updateSidePanel();
+                updateSidePanel(selectedModel.get());
             }
         }
         if (enemies.getEnemies().isEmpty()) {
@@ -753,37 +782,61 @@ public class Grid {
         }
     }
 
+    public void openMenu(){
+        stillFighting = false;
+        VBox menu = new VBox();
+        world.stylePopUp(menu);
+        Label title = new Label("Paused");
+        Button close = new Button("close");
+        Button saveNquit = new Button("Save and Quit");
+        menu.getChildren().addAll(title, saveNquit, close);
+        close.setOnAction(c -> {
+            stillFighting = true;
+            gridView.getChildren().remove(menu);
+        });
+        saveNquit.setOnAction(c -> {
+            world.save();
+            System.exit(0);
+        });
+        gridView.getChildren().add(menu);
+    }
+
     /**
      * exception to the helper methods down here, updates the sidePanel to reflect the status of selectedModel
      * displays selectedModel's name, ap, abilities, and status effects
      */
-    private void updateSidePanel(){
-        if (selectedModel.get() == null) return;
+    private void updateSidePanel(CharacterModel model){
+        if (model == null) return;
         sidePanel.getChildren().clear();
-        Label name = new Label(selectedModel.get().getName());
-        Label ap = new Label("AP: " + selectedModel.get().getCharacter().actionPoints + "/" + Character.MAX_ACTION_POINT);
-        AbilityBox move = new AbilityBox("move", 0,1, remainder, "ability/move.png");
-        move.root.setOnMouseClicked(c -> highLightActionMove());
-        AbilityBox attack = new AbilityBox("attack", 0,2, remainder, "ability/attackImage.png");
-        attack.root.setOnMouseClicked(c -> {
-            enterAttackMode();
-        });
-        sidePanel.getChildren().addAll(name, ap, move.root, attack.root);
-        for (int i = 0; i < selectedModel.get().getCharacter().discipline.abilities.size(); i++) {
-            Ability current = selectedModel.get().getCharacter().discipline.abilities.get(i);
-            AbilityBox box = new AbilityBox(current.name, current.abilityTimer, i+3, remainder, current.imageURL);
-            if (i == 0)
-                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 0));
-            if (i == 1)
-                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 1));
-            if (i == 2)
-                box.root.setOnMouseClicked(c -> enterAbility(selectedModel.get(), 2));
-            sidePanel.getChildren().add(box.root);
+        Label name = new Label(model.getName());
+        Label ap = new Label("AP: " + model.getCharacter().actionPoints + "/" + Character.MAX_ACTION_POINT);
+        sidePanel.getChildren().addAll(name, ap);
+        /* if the model is a player, show move, attack, and abilities*/
+        if (model instanceof PlayerModel model1) {
+            AbilityBox move = new AbilityBox("move", 0, 1, remainder, "ability/move.png");
+            move.root.setOnMouseClicked(c -> highLightActionMove());
+            AbilityBox attack = new AbilityBox("attack", 0, 2, remainder, "ability/attackImage.png");
+            attack.root.setOnMouseClicked(c -> {
+                enterAttackMode();
+            });
+            sidePanel.getChildren().addAll(move.root, attack.root);
+            for (int i = 0; i < model.getCharacter().discipline.abilities.size(); i++) {
+                Ability current = model.getCharacter().discipline.abilities.get(i);
+                AbilityBox box = new AbilityBox(current.name, current.abilityTimer, i + 3, remainder, current.imageURL);
+                if (i == 0)
+                    box.root.setOnMouseClicked(c -> enterAbility(model1, 0));
+                if (i == 1)
+                    box.root.setOnMouseClicked(c -> enterAbility(model1, 1));
+                if (i == 2)
+                    box.root.setOnMouseClicked(c -> enterAbility(model1, 2));
+                sidePanel.getChildren().add(box.root);
+            }
+            Rectangle divider = new Rectangle(remainder, 10);
+            sidePanel.getChildren().add(divider);
         }
-        Rectangle divider = new Rectangle(remainder, 10);
         Label desc = new Label();
-        sidePanel.getChildren().addAll(divider, desc);
-        for (Effect effect : selectedModel.get().getEffects()){
+        sidePanel.getChildren().add(desc);
+        for (Effect effect : model.getEffects()){
             StatusBox status = new StatusBox(effect, desc, remainder);
             sidePanel.getChildren().add(status.root);
         }
